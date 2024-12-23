@@ -7,10 +7,10 @@ from typing import Any, cast
 
 from packaging.version import InvalidVersion, Version
 
-from insta_science.errors import InputError
-from insta_science.hashing import Digest, Fingerprint
-from insta_science.model import Science
-from insta_science.project import PyProjectToml
+from .errors import InputError
+from .hashing import Digest, Fingerprint
+from .model import Science
+from .project import PyProjectToml
 
 
 def _assert_dict_str_keys(obj: Any, *, path: str) -> dict[str, Any]:

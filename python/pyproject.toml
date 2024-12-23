@@ -50,11 +50,11 @@ Repository = "https://github.com/a-scie/science-installers/tree/main/python"
 Changelog = "https://github.com/a-scie/science-installers/blob/main/python/CHANGES.md"
 
 [project.scripts]
-insta-science = "insta_science.shim:science"
+insta-science = "insta_science.shim:main"
 insta-science-util = "insta_science.util:main"
 
 [tool.setuptools.dynamic]
-version = {attr = "insta_science.__version__"}
+version = {attr = "insta_science.version.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["."]

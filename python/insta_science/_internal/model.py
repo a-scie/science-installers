@@ -9,7 +9,7 @@ from functools import cached_property
 
 from packaging.version import Version
 
-from insta_science.hashing import Digest
+from .hashing import Digest
 
 
 @dataclass(frozen=True)

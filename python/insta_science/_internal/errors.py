@@ -16,3 +16,10 @@ class InputError(ValueError):
 
 class InvalidProjectError(InputError):
     """Indicates bad pyproject.toml configuration for `[tool.insta-science]`."""
+
+
+class ScienceNotFound(Exception):
+    """Indicates the science binary could not be found.
+
+    This generally means there was an error downloading a science binary.
+    """

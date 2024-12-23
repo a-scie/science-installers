@@ -10,7 +10,7 @@ from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from typing import Any
 
-from insta_science.errors import InputError, InvalidProjectError
+from .errors import InputError, InvalidProjectError
 
 try:
     import tomllib as toml  # type: ignore[import-not-found]

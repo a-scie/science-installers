@@ -9,7 +9,7 @@ import _pytest
 import pytest
 from packaging.version import Version
 
-from insta_science.platform import Platform
+from insta_science import Platform
 
 
 def test_self() -> None:

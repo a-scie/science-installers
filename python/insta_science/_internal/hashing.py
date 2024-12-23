@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from insta_science.errors import InputError
+from .errors import InputError
 
 DEFAULT_ALGORITHM = "sha256"
 

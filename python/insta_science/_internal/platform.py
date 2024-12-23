@@ -7,7 +7,7 @@ import platform
 from enum import Enum
 from functools import cache
 
-from insta_science.errors import InputError
+from .errors import InputError
 
 
 class Platform(Enum):

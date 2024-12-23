@@ -9,10 +9,10 @@ from pathlib import PurePath
 
 from packaging.version import Version
 
-from insta_science.fetcher import fetch_and_verify
-from insta_science.hashing import Digest, Fingerprint
-from insta_science.model import Science, Url
-from insta_science.platform import Platform
+from .fetcher import fetch_and_verify
+from .hashing import Digest, Fingerprint
+from .model import Science, Url
+from .platform import Platform
 
 
 @dataclass(frozen=True)

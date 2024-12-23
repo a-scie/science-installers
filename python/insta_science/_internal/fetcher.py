@@ -14,11 +14,11 @@ from typing import Mapping
 import httpx
 from tqdm import tqdm
 
-from insta_science import hashing
-from insta_science.cache import Missing, download_cache
-from insta_science.errors import InputError
-from insta_science.hashing import Digest, ExpectedDigest, Fingerprint
-from insta_science.model import Url
+from . import hashing
+from .cache import Missing, download_cache
+from .errors import InputError
+from .hashing import Digest, ExpectedDigest, Fingerprint
+from .model import Url
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def _configure_auth(url: Url) -> httpx.Auth | tuple[str, str] | None:
     return None
 
 
-def configured_client(url: Url, headers: Mapping[str, str] | None = None) -> httpx.Client:
+def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> httpx.Client:
     headers = dict(headers) if headers else {}
     auth = _configure_auth(url) if "Authorization" not in headers else None
     return httpx.Client(follow_redirects=True, headers=headers, auth=auth)
@@ -95,7 +95,7 @@ def _fetch_to_cache(
     with download_cache().get_or_create(url, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
             with (
-                configured_client(url, headers).stream("GET", url) as response,
+                _configured_client(url, headers).stream("GET", url) as response,
                 cache_result.work.open("wb") as cache_fp,
             ):
                 for data in response.iter_bytes():
@@ -115,7 +115,7 @@ def _maybe_expected_digest(
         return ExpectedDigest(fingerprint=fingerprint, algorithm=algorithm)
     elif isinstance(fingerprint, Url):
         url = fingerprint
-        with configured_client(url, headers) as client:
+        with _configured_client(url, headers) as client:
             return ExpectedDigest(
                 fingerprint=Fingerprint(client.get(url).text.split(" ", 1)[0].strip()),
                 algorithm=algorithm,
@@ -134,7 +134,7 @@ def _expected_digest(
     if expected_digest:
         return expected_digest
 
-    with configured_client(url, headers) as client:
+    with _configured_client(url, headers) as client:
         return ExpectedDigest(
             fingerprint=Fingerprint(client.get(f"{url}.{algorithm}").text.split(" ", 1)[0].strip()),
             algorithm=algorithm,
@@ -155,7 +155,7 @@ def fetch_and_verify(
             # TODO(John Sirois): XXX: Log or invoke callback for logging.
             # click.secho(f"Downloading {url} ...", fg="green")
             work = cache_result.work
-            with configured_client(url, headers) as client:
+            with _configured_client(url, headers) as client:
                 expected_digest = _expected_digest(
                     url, headers, fingerprint, algorithm=digest_algorithm
                 )
