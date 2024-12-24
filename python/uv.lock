@@ -2,6 +2,15 @@ version = 1
 requires-python = ">=3.9"
 
 [[package]]
+name = "aioconsole"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/c9/c57e979eea211b10a63783882a826f257713fa7c0d6c9a6eac851e674fb4/aioconsole-0.8.1.tar.gz", hash = "sha256:0535ce743ba468fb21a1ba43c9563032c779534d4ecd923a46dbd350ad91d234", size = 61085 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/ea/23e756ec1fea0c685149304dda954b3b3932d6d06afbf42a66a2e6dc2184/aioconsole-0.8.1-py3-none-any.whl", hash = "sha256:e1023685cde35dde909fbf00631ffb2ed1c67fe0b7058ebb0892afbde5f213e5", size = 43324 },
+]
+
+[[package]]
 name = "ansicolors"
 version = "1.1.8"
 source = { registry = "https://pypi.org/simple" }
@@ -54,15 +63,16 @@ wheels = [
 
 [[package]]
 name = "dev-cmd"
-version = "0.2.1"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "aioconsole" },
     { name = "ansicolors" },
     { name = "tomlkit", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/67/80/427728e4c3db12a50d87c082a70924e77b5530fa0f2a2ecee9993bfe6d14/dev_cmd-0.2.1.tar.gz", hash = "sha256:1c8f3ebf43c985b88433b36a5bcbbdcf9fe48ed2b95b05836d4f4c4aa8e3c2ec", size = 17525 }
+sdist = { url = "https://files.pythonhosted.org/packages/20/7b/d924e2fc6eae0acf6d1363a4a8c0440ec7c78efc79f8d7d30cccde9f6539/dev_cmd-0.3.1.tar.gz", hash = "sha256:41504be7dad848c5eead81b44246f34513e1ede826b8454aac4d8384706b523e", size = 18781 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/d2/689305ed799ce6e00f4549b3afbcd56b1c6a55dc7fe78c1304d8ac84f12d/dev_cmd-0.2.1-py3-none-any.whl", hash = "sha256:8798e4600b344f4074b25d5e5a053b36dad9f2a22f56a7786c6525e2ab0f8dbf", size = 16829 },
+    { url = "https://files.pythonhosted.org/packages/45/89/e180c623b3778a2d492330873a92016f866269309d01483de931ee4950d4/dev_cmd-0.3.1-py3-none-any.whl", hash = "sha256:9181245293b5062b4e0c1aa6421e1e303496bbfa62c8e3b8d7cee15146ee0cbb", size = 17956 },
 ]
 
 [[package]]
