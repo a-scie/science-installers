@@ -23,7 +23,7 @@ def main() -> NoReturn:
 
     argv = [str(science_exe), *sys.argv[1:]]
     try:
-        if Platform.current() in (Platform.Windows_aarch64, Platform.Windows_x86_64):
+        if Platform.current().is_windows:
             sys.exit(subprocess.run(argv).returncode)
         else:
             os.execv(science_exe, argv)

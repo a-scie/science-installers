@@ -5,12 +5,10 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-import sys
 from datetime import timedelta
 from pathlib import Path, PurePath
 from subprocess import CalledProcessError
 
-import colors
 import httpx
 from packaging.version import Version
 
@@ -22,13 +20,13 @@ from .model import Science
 from .platform import Platform
 
 
-def _find_science_on_path(science: Science) -> PurePath | None:
+def _find_science_on_path(spec: Science) -> PurePath | None:
     url = "file://<just-a-cache-key>/science"
     ttl: timedelta | None = None
-    if science.version:
-        url = f"{url}/v{science.version}"
-        if science.digest:
-            url = f"{url}#{science.digest.fingerprint}:{science.digest.size}"
+    if spec.version:
+        url = f"{url}/v{spec.version}"
+        if spec.digest:
+            url = f"{url}#{spec.digest.fingerprint}:{spec.digest.size}"
     else:
         ttl = timedelta(days=5)
 
@@ -44,16 +42,16 @@ def _find_science_on_path(science: Science) -> PurePath | None:
                 science_exe = shutil.which(binary_name)
                 if not science_exe:
                     continue
-                if science.version:
-                    if science.version != Version(
+                if spec.version:
+                    if spec.version != Version(
                         subprocess.run(
                             args=[science_exe, "-V"], text=True, stdout=subprocess.PIPE
                         ).stdout.strip()
                     ):
                         continue
-                    if science.digest and science.digest.fingerprint:
+                    if spec.digest and spec.digest.fingerprint:
                         expected_digest = ExpectedDigest(
-                            fingerprint=science.digest.fingerprint, size=science.digest.size
+                            fingerprint=spec.digest.fingerprint, size=spec.digest.size
                         )
                         try:
                             expected_digest.check_path(Path(science_exe))
@@ -79,17 +77,12 @@ def ensure_installed(spec: Science | None = None) -> PurePath:
             install was parsed from ``pyproject.toml`` and found to have errors.
         ScienceNotFound: The science binary could not be found locally or downloaded.
     """
-    if spec is not None:
-        science = spec
-    else:
-        try:
-            pyproject_toml = project.find_pyproject_toml()
-            science = parser.configured_science(pyproject_toml) if pyproject_toml else Science()
-        except InputError as e:
-            sys.exit(f"{colors.red('Configuration error')}: {colors.yellow(str(e))}")
+    if spec is None:
+        pyproject_toml = project.find_pyproject_toml()
+        spec = parser.configured_science(pyproject_toml) if pyproject_toml else Science()
 
     try:
-        return _find_science_on_path(science) or a_scie.science(science)
+        return _find_science_on_path(spec) or a_scie.science(spec)
     except (
         OSError,
         CalledProcessError,

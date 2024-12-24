@@ -14,6 +14,10 @@ from .hashing import Digest
 
 @dataclass(frozen=True)
 class Science:
+    @classmethod
+    def spec(cls, version: str, digest: Digest | None = None) -> Science:
+        return cls(version=Version(version), digest=digest)
+
     version: Version | None = None
     digest: Digest | None = None
 

@@ -45,11 +45,9 @@ def _load_project_release(
     return _LoadResult(path=path, binary_name=qualified_binary_name)
 
 
-def science(
-    specification: Science | None = None, platform: Platform = Platform.current()
-) -> PurePath:
-    version = specification.version if specification else None
-    fingerprint = specification.digest if specification and specification.digest else None
+def science(spec: Science | None = None, platform: Platform = Platform.current()) -> PurePath:
+    version = spec.version if spec else None
+    fingerprint = spec.digest if spec and spec.digest else None
     return _load_project_release(
         project_name="lift",
         binary_name="science-fat",

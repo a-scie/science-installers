@@ -165,6 +165,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "dev-cmd" },
+    { name = "marko" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-xdist" },
@@ -188,12 +189,22 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "dev-cmd" },
+    { name = "marko" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "types-appdirs" },
     { name = "types-tqdm" },
+]
+
+[[package]]
+name = "marko"
+version = "2.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/38/6ea5d8600b94432656c669816a479580d9f1c49ef6b426282f4ba261ae9b/marko-2.1.2.tar.gz", hash = "sha256:a9170006b879376e6845c91b1ae3dce2992772954b99b70175ff888537186011", size = 142593 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/9b/3dbfbe6ee255b1c37a37e2a6046adb2e77763a020591dae63e5005a2c8d7/marko-2.1.2-py3-none-any.whl", hash = "sha256:c14aa7a77468aaaf53cf056dcd3d32398b9df4c3fb81f5e120dd37cbb9f8c859", size = 42089 },
 ]
 
 [[package]]

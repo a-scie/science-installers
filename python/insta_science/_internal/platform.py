@@ -57,8 +57,12 @@ class Platform(Enum):
         )
 
     @property
+    def is_windows(self) -> bool:
+        return self in (self.Windows_aarch64, self.Windows_x86_64)
+
+    @property
     def extension(self) -> str:
-        return ".exe" if self in (self.Windows_aarch64, self.Windows_x86_64) else ""
+        return ".exe" if self.is_windows else ""
 
     def binary_name(self, binary_name: str) -> str:
         return f"{binary_name}{self.extension}"

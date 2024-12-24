@@ -109,13 +109,18 @@ check-fmt = ["ruff", "format", "--diff"]
 lint = ["ruff", "check", "--fix"]
 check-lint = ["ruff", "check"]
 
-type-check = ["mypy", "insta_science", "scripts"]
-type-check-39 = ["mypy", "--python-version", "3.9", "insta_science", "scripts"]
-type-check-313 = ["mypy", "--python-version", "3.13", "insta_science", "scripts"]
+type-check = ["mypy", "insta_science", "scripts", "test-support", "tests"]
+type-check-39 = [
+    "mypy", "--python-version", "3.9", "insta_science", "scripts", "test-support", "tests"
+]
+type-check-313 = [
+    "mypy", "--python-version", "3.13", "insta_science", "scripts", "test-support", "tests"
+]
 
 release = ["python", "scripts/release.py"]
 
 [tool.dev-cmd.commands.test]
+env = {"PYTHONPATH" = "test-support"}
 args = ["pytest", "-n", "auto"]
 accepts-extra-args = true
 

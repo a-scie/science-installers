@@ -20,6 +20,10 @@ class Fingerprint(str):
 
 @dataclass(frozen=True)
 class Digest:
+    @classmethod
+    def spec(cls, size: int, fingerprint: str) -> Digest:
+        return cls(size=size, fingerprint=Fingerprint(fingerprint))
+
     size: int
     fingerprint: Fingerprint
 
