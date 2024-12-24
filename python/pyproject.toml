@@ -63,6 +63,7 @@ include = ["insta_science*"]
 [dependency-groups]
 dev = [
     "dev-cmd",
+    "marko",
     "mypy",
     "pytest",
     "pytest-xdist",
@@ -108,9 +109,11 @@ check-fmt = ["ruff", "format", "--diff"]
 lint = ["ruff", "check", "--fix"]
 check-lint = ["ruff", "check"]
 
-type-check = ["mypy", "insta_science"]
-type-check-39 = ["mypy", "--python-version", "3.9", "insta_science"]
-type-check-313 = ["mypy", "--python-version", "3.13", "insta_science"]
+type-check = ["mypy", "insta_science", "scripts"]
+type-check-39 = ["mypy", "--python-version", "3.9", "insta_science", "scripts"]
+type-check-313 = ["mypy", "--python-version", "3.13", "insta_science", "scripts"]
+
+release = ["python", "scripts/release.py"]
 
 [tool.dev-cmd.commands.test]
 args = ["pytest", "-n", "auto"]
