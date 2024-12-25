@@ -11,7 +11,7 @@ dependencies = [
     "filelock",
     "httpx",
     "packaging",
-    "tomlkit; python_version < '3.11'",
+    "tomli; python_version < '3.11'",
     "tqdm",
     "typing-extensions",
 ]
@@ -133,7 +133,7 @@ env = {"PYTHONPATH" = "test-support"}
 args = ["pytest", "-n", "auto"]
 accepts-extra-args = true
 
-[tool.dev-cmd.aliases]
+[tool.dev-cmd.tasks]
 checks = [
     "fmt",
     "lint",
@@ -142,5 +142,5 @@ checks = [
 ]
 ci = [["check-fmt", "check-lint", "type-check"], "test"]
 
-[tool.dev-cmd.default]
-alias = "checks"
+[tool.dev-cmd]
+default = "checks"
