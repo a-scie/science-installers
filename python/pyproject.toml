@@ -129,8 +129,9 @@ type-check-313 = [
 release = ["python", "scripts/release.py"]
 
 [tool.dev-cmd.commands.test]
-env = {"PYTHONPATH" = "test-support"}
+env = {"PYTHONPATH" = "../test-support"}
 args = ["pytest", "-n", "auto"]
+cwd = "tests"
 accepts-extra-args = true
 
 [tool.dev-cmd.tasks]
