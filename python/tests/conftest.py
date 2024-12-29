@@ -6,12 +6,12 @@ from pathlib import Path
 import pytest
 from pytest import MonkeyPatch
 
-from insta_science import Platform
+from insta_science import CURRENT_PLATFORM, Platform
 
 
 @pytest.fixture
 def platform() -> Platform:
-    return Platform.current()
+    return CURRENT_PLATFORM
 
 
 @pytest.fixture

@@ -13,11 +13,11 @@ import httpx
 from packaging.version import Version
 
 from . import a_scie, parser, project
-from .cache import Missing, download_cache
+from .cache import DOWNLOAD_CACHE, Missing
 from .errors import InputError, ScienceNotFound
 from .hashing import ExpectedDigest
 from .model import Science
-from .platform import Platform
+from .platform import CURRENT_PLATFORM
 
 
 def _find_science_on_path(spec: Science) -> PurePath | None:
@@ -30,14 +30,13 @@ def _find_science_on_path(spec: Science) -> PurePath | None:
     else:
         ttl = timedelta(days=5)
 
-    with download_cache().get_or_create(url=url, ttl=ttl) as cache_result:
+    with DOWNLOAD_CACHE.get_or_create(url=url, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
-            current_platform = Platform.current()
             for binary_name in (
-                current_platform.binary_name("science"),
-                current_platform.binary_name("science-fat"),
-                current_platform.qualified_binary_name("science"),
-                current_platform.qualified_binary_name("science-fat"),
+                CURRENT_PLATFORM.binary_name("science"),
+                CURRENT_PLATFORM.binary_name("science-fat"),
+                CURRENT_PLATFORM.qualified_binary_name("science"),
+                CURRENT_PLATFORM.qualified_binary_name("science-fat"),
             ):
                 science_exe = shutil.which(binary_name)
                 if not science_exe:

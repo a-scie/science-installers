@@ -9,7 +9,6 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from functools import cache
 from pathlib import Path
 from typing import Iterator, Union
 
@@ -83,10 +82,8 @@ class DownloadCache:
                 ttl_file.write_text((datetime.now() + ttl).strftime(_TTL_EXPIRY_FORMAT))
 
 
-@cache
-def download_cache() -> DownloadCache:
-    return DownloadCache(
-        base_dir=Path(
-            os.environ.get("INSTA_SCIENCE_CACHE", appdirs.user_cache_dir(appname="insta-science"))
-        )
+DOWNLOAD_CACHE = DownloadCache(
+    base_dir=Path(
+        os.environ.get("INSTA_SCIENCE_CACHE", appdirs.user_cache_dir(appname="insta-science"))
     )
+)

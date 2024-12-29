@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import platform
 from enum import Enum
-from functools import cache
 
 from .errors import InputError
 
@@ -22,7 +21,6 @@ class Platform(Enum):
     Windows_x86_64 = "windows-x86_64"
 
     @classmethod
-    @cache
     def current(cls) -> Platform:
         system = platform.system().lower()
         machine = platform.machine().lower()
@@ -69,3 +67,6 @@ class Platform(Enum):
 
     def qualified_binary_name(self, binary_name: str) -> str:
         return f"{binary_name}-{self.value}{self.extension}"
+
+
+CURRENT_PLATFORM = Platform.current()

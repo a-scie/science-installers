@@ -15,7 +15,7 @@ import httpx
 from tqdm import tqdm
 
 from . import hashing
-from .cache import Missing, download_cache
+from .cache import DOWNLOAD_CACHE, Missing
 from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
@@ -92,12 +92,11 @@ def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> ht
 def _fetch_to_cache(
     url: Url, ttl: timedelta | None = None, headers: Mapping[str, str] | None = None
 ) -> Path:
-    with download_cache().get_or_create(url, ttl=ttl) as cache_result:
+    with DOWNLOAD_CACHE.get_or_create(url, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
-            with (
-                _configured_client(url, headers).stream("GET", url) as response,
-                cache_result.work.open("wb") as cache_fp,
-            ):
+            with _configured_client(url, headers).stream(
+                "GET", url
+            ) as response, cache_result.work.open("wb") as cache_fp:
                 for data in response.iter_bytes():
                     cache_fp.write(data)
     return cache_result.path
@@ -150,7 +149,7 @@ def fetch_and_verify(
     headers: Mapping[str, str] | None = None,
 ) -> PurePath:
     verified_fingerprint = False
-    with download_cache().get_or_create(url, ttl=ttl) as cache_result:
+    with DOWNLOAD_CACHE.get_or_create(url, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
             # TODO(John Sirois): XXX: Log or invoke callback for logging.
             # click.secho(f"Downloading {url} ...", fg="green")

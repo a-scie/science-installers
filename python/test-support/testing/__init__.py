@@ -4,12 +4,12 @@
 import os
 from pathlib import PurePath
 
-from insta_science import Platform
+from insta_science import CURRENT_PLATFORM
 
 
 def is_exe(path: PurePath) -> bool:
     if not os.path.isfile(path):
         return False
-    if Platform.current().is_windows:
+    if CURRENT_PLATFORM.is_windows:
         return True
     return os.access(path, os.R_OK | os.X_OK)

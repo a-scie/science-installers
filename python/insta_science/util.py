@@ -3,9 +3,14 @@
 
 from typing import Any
 
+from ._colors import color_support
+
 
 def main() -> Any:
-    raise NotImplementedError(
-        "TODO(John Sirois): implement download subcommand for seeding offline `science` binary "
-        "access."
-    )
+    with color_support() as colors:
+        raise NotImplementedError(
+            colors.yellow(
+                "TODO(John Sirois): implement download subcommand for seeding offline `science` "
+                "binary access."
+            )
+        )

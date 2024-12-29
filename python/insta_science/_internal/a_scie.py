@@ -12,7 +12,7 @@ from packaging.version import Version
 from .fetcher import fetch_and_verify
 from .hashing import Digest, Fingerprint
 from .model import Science, Url
-from .platform import Platform
+from .platform import CURRENT_PLATFORM, Platform
 
 
 @dataclass(frozen=True)
@@ -26,7 +26,7 @@ def _load_project_release(
     binary_name: str,
     version: Version | None = None,
     fingerprint: Digest | Fingerprint | None = None,
-    platform: Platform = Platform.current(),
+    platform: Platform = CURRENT_PLATFORM,
 ) -> _LoadResult:
     qualified_binary_name = platform.qualified_binary_name(binary_name)
     base_url = f"https://github.com/a-scie/{project_name}/releases"
@@ -45,7 +45,7 @@ def _load_project_release(
     return _LoadResult(path=path, binary_name=qualified_binary_name)
 
 
-def science(spec: Science | None = None, platform: Platform = Platform.current()) -> PurePath:
+def science(spec: Science | None = None, platform: Platform = CURRENT_PLATFORM) -> PurePath:
     version = spec.version if spec else None
     fingerprint = spec.digest if spec and spec.digest else None
     return _load_project_release(
