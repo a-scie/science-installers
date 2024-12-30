@@ -5,11 +5,12 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CalledProcessError
 from textwrap import dedent
-from typing import Any, Iterable, TextIO
+from typing import Any, Iterable, NewType, TextIO
 
 import colors
 import marko
@@ -29,6 +30,9 @@ RELEASE_TAG = f"python-v{__version__}"
 
 CHANGELOG = Path("CHANGES.md")
 RELEASE_HEADING_LEVEL = 2
+
+
+ReleaseError = NewType("ReleaseError", str)
 
 
 @dataclass(frozen=True)
@@ -105,60 +109,80 @@ def tag_and_push_release() -> None:
     subprocess.run(args=["git", "push", "--tags", REMOTE, "HEAD:main"], check=True)
 
 
-def main() -> Any:
+def check_branch() -> ReleaseError | None:
     if (current_branch := branch()) != RELEASE_BRANCH:
-        return colors.yellow(
-            f"Aborted release since the current branch is {current_branch} and releases must be "
-            f"done from {RELEASE_BRANCH}."
+        return ReleaseError(
+            colors.yellow(
+                f"Aborted release since the current branch is {current_branch} and releases must "
+                f"be done from {RELEASE_BRANCH}."
+            )
         )
 
     if status := branch_status():
         print(status)
         print("---")
-        return colors.yellow(
-            "Aborted release since the current branch is dirty with the status shown above."
+        return ReleaseError(
+            colors.yellow(
+                "Aborted release since the current branch is dirty with the status shown above."
+            )
         )
 
+    return None
+
+
+def check_version_and_changelog() -> Release | ReleaseError:
     if existing_tag := release_tag_exists():
         print(existing_tag)
         print("---")
-        return colors.yellow(
-            f"Aborted release since there is already a release tag for {__version__} shown above."
+        return ReleaseError(
+            colors.yellow(
+                f"Aborted release since there is already a release tag for {__version__} shown "
+                f"above."
+            )
         )
 
     release = parse_latest_release(CHANGELOG.read_text(), level=RELEASE_HEADING_LEVEL)
     if release is None or VERSION > release.version:
         heading = colors.red(f"There are no release notes for {__version__} in {CHANGELOG}!")
-        return dedent(
-            f"""\
-            {heading}
-
-            You need to add a level {RELEASE_HEADING_LEVEL} heading with the release version number
-            followed by the release notes for that version.
-
-            For example:
-            ------------
-
-            {'#' * RELEASE_HEADING_LEVEL} {__version__}
-
-            These are the {__version__} release notes...
-            """
+        return ReleaseError(
+            dedent(
+                f"""\
+                {heading}
+    
+                You need to add a level {RELEASE_HEADING_LEVEL} heading with the release version
+                number followed by the release notes for that version.
+    
+                For example:
+                ------------
+    
+                {'#' * RELEASE_HEADING_LEVEL} {__version__}
+    
+                These are the {__version__} release notes...
+                """
+            )
         )
-    elif VERSION < release.version:
+
+    if VERSION < release.version:
         release.render(sys.stdout)
         print("---")
-        return colors.red(
-            f"The current version is {VERSION} which is older than the latest release of "
-            f"{release.version} recorded in {CHANGELOG} and shown above."
+        return ReleaseError(
+            colors.red(
+                f"The current version is {VERSION} which is older than the latest release of "
+                f"{release.version} recorded in {CHANGELOG} and shown above."
+            )
         )
 
+    return release
+
+
+def finalize_release(release: Release) -> ReleaseError | None:
     release.render(sys.stdout)
     print("---")
     if (
         "y"
         != input("Do you want to proceed with releasing the changes above? [y|N] ").strip().lower()
     ):
-        return colors.yellow("Aborted release at user request.")
+        return ReleaseError(colors.yellow("Aborted release at user request."))
 
     print()
     tag_and_push_release()
@@ -167,6 +191,33 @@ def main() -> Any:
     print()
     print("You can view release progress by visiting the latest job here:")
     print("    https://github.com/a-scie/science-installers/actions/workflows/python-release.yml")
+    return None
+
+
+def main() -> Any:
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        help="Instead of attempting a release, just check that the codebase is ready to release.",
+    )
+    options = parser.parse_args()
+
+    if not options.dry_run:
+        if branch_error := check_branch():
+            return branch_error
+
+    release_or_error = check_version_and_changelog()
+    if not isinstance(release_or_error, Release):
+        return release_or_error
+
+    if not options.dry_run:
+        return finalize_release(release_or_error)
+
+    release_or_error.render(sys.stdout)
+    print("---")
+    print(f"The changes above are releasable from a clean {RELEASE_BRANCH} branch.")
 
 
 if __name__ == "__main__":

@@ -88,7 +88,7 @@ wheels = [
 
 [[package]]
 name = "dev-cmd"
-version = "0.9.1"
+version = "0.9.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioconsole" },
@@ -96,9 +96,9 @@ dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bb/94/11e26c96f776be2213ab5cebebfca7cf4fc9e30c5947e736312a047a9450/dev_cmd-0.9.1.tar.gz", hash = "sha256:7ca9d015dd0341037843e87d8047b2b469cb3c07e959c4c1232b6124d32b22ae", size = 34902 }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/13/0714020c249b8ce590ba74fe842a985e35ef1442d1fdc62bd93aa451b22f/dev_cmd-0.9.3.tar.gz", hash = "sha256:a658f24b4d1bd5d3e246892f21b9a17c6a9e2ac1377e0fc4bb5d49f651dbea50", size = 35081 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/ae/1f0d7fcdcca289b0aac80a45178142bc49cd00b928afea1c342e3a9f153a/dev_cmd-0.9.1-py3-none-any.whl", hash = "sha256:52c6bcbdc754af9ad9a8ec74a73f7285f6c885ddfbda0341a2f3705f46954297", size = 23661 },
+    { url = "https://files.pythonhosted.org/packages/cd/72/01ee54c61056645d4177aade1242872262e2826bd7ebebbcbdea74c87d95/dev_cmd-0.9.3-py3-none-any.whl", hash = "sha256:ee025b8cf27781d10a8a662b53d3369dee08f97a259e7f833fd53b34ad75c8e3", size = 23883 },
 ]
 
 [[package]]
@@ -186,7 +186,7 @@ wheels = [
 
 [[package]]
 name = "insta-science"
-version = "0.3.0"
+version = "0.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "ansicolors" },

@@ -7,7 +7,9 @@
 1. Bump the version in [`insta_science/version.py`](insta_science/version.py).
 2. Run `uv run dev-cmd` as a sanity check on the state of the project.
 3. Update [`CHANGES.md`](CHANGES.md) with any changes that are likely to be useful to consumers.
-4. Open a PR with these changes and land it on https://github.com/a-scie/science-installers main.
+4. Run `uv run dev-cmd -q release -- --dry-run` as a sanity check the release will work once the
+   current changes are commited to main.
+5. Open a PR with these changes and land it on https://github.com/a-scie/science-installers main.
 
 ## Release
 

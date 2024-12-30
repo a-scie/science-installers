@@ -132,7 +132,9 @@ type-check-313 = [
     "mypy", "--python-version", "3.13", "insta_science", "scripts", "test-support", "tests"
 ]
 
-release = ["python", "scripts/release.py"]
+[tool.dev-cmd.commands.release]
+args = ["python", "scripts/release.py"]
+accepts-extra-args = true
 
 [tool.dev-cmd.commands.test]
 env = {"PYTHONPATH" = "../test-support"}
