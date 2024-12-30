@@ -22,12 +22,12 @@ def main() -> NoReturn:
         with color_support() as colors:
             sys.exit(colors.red(str(e)))
 
-    argv = [str(science_exe), *sys.argv[1:]]
+    argv = [str(science_exe.path), *sys.argv[1:]]
     try:
         if CURRENT_PLATFORM.is_windows:
             sys.exit(subprocess.run(argv).returncode)
         else:
-            os.execv(science_exe, argv)
+            os.execv(science_exe.path, argv)
     except OSError as e:
         with color_support() as colors:
             sys.exit(colors.red(str(e)))

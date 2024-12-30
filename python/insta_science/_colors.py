@@ -20,13 +20,19 @@ class Colors:
     def yellow(self, text) -> str:
         return self.color(text, fg="yellow")
 
-    def color(self, text, fg: str):
+    def green(self, text) -> str:
+        return self.color(text, fg="green")
+
+    def gray(self, text) -> str:
+        return self.color(text, fg="gray")
+
+    def color(self, text, fg: str | None = None, style: str | None = None):
         if not self.use_color:
             return text
 
         import colors
 
-        return colors.color(text, fg=fg)
+        return colors.color(text, fg=fg, style=style)
 
 
 @contextmanager

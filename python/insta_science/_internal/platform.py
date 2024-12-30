@@ -68,5 +68,8 @@ class Platform(Enum):
     def qualified_binary_name(self, binary_name: str) -> str:
         return f"{binary_name}-{self.value}{self.extension}"
 
+    def __str__(self) -> str:
+        return self.value
+
 
 CURRENT_PLATFORM = Platform.current()

@@ -9,7 +9,7 @@ from packaging.version import InvalidVersion, Version
 
 from .errors import InputError
 from .hashing import Digest, Fingerprint
-from .model import Science
+from .model import Science, Url
 from .project import PyProjectToml
 
 
@@ -86,6 +86,16 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
 
         digest = Digest(size, fingerprint=Fingerprint(fingerprint))
 
+    base_url: Url | None = None
+    base_url_str = insta_science_data.pop("base-url", None)
+    if base_url_str:
+        if not isinstance(base_url_str, str):
+            raise InputError(
+                f"The [tool.insta-science.science] `base-url` value should be a string; given: "
+                f"{base_url_str} of type {type(base_url_str)}."
+            )
+        base_url = Url(base_url_str)
+
     if insta_science_data:
         raise InputError(
             f"Unexpected configuration keys in the [tool.insta-science.science] table: "
@@ -98,4 +108,8 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
             "[tool.insta-science.science] `version` is set."
         )
 
-    return Science(version=version, digest=digest)
+    return (
+        Science(version=version, digest=digest, base_url=base_url)
+        if base_url
+        else Science(version=version, digest=digest)
+    )

@@ -1,5 +1,11 @@
 # insta-science
 
+## 0.4.0
+
+Flesh out the `insta-science-util` script adding support for downloading `science` executables for
+offline serving in firewalled environments as well as support for managing the `insta-science`
+cache.
+
 ## 0.3.1
 
 Fix the semi-automated release process.

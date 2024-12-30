@@ -4,23 +4,24 @@
 from __future__ import annotations
 
 import shutil
-import subprocess
 from datetime import timedelta
 from pathlib import Path, PurePath
 from subprocess import CalledProcessError
+from typing import Iterator
 
 import httpx
-from packaging.version import Version
 
 from . import a_scie, parser, project
 from .cache import DOWNLOAD_CACHE, Missing
 from .errors import InputError, ScienceNotFound
 from .hashing import ExpectedDigest
-from .model import Science
+from .model import Science, ScienceExe
 from .platform import CURRENT_PLATFORM
 
+_PATH_EXES_NAMESPACE = "path-exes"
 
-def _find_science_on_path(spec: Science) -> PurePath | None:
+
+def _find_science_on_path(spec: Science) -> ScienceExe | None:
     url = "file://<just-a-cache-key>/science"
     ttl: timedelta | None = None
     if spec.version:
@@ -30,7 +31,9 @@ def _find_science_on_path(spec: Science) -> PurePath | None:
     else:
         ttl = timedelta(days=5)
 
-    with DOWNLOAD_CACHE.get_or_create(url=url, ttl=ttl) as cache_result:
+    with DOWNLOAD_CACHE.get_or_create(
+        url=url, namespace=_PATH_EXES_NAMESPACE, ttl=ttl
+    ) as cache_result:
         if isinstance(cache_result, Missing):
             for binary_name in (
                 CURRENT_PLATFORM.binary_name("science"),
@@ -42,11 +45,7 @@ def _find_science_on_path(spec: Science) -> PurePath | None:
                 if not science_exe:
                     continue
                 if spec.version:
-                    if spec.version != Version(
-                        subprocess.run(
-                            args=[science_exe, "-V"], text=True, stdout=subprocess.PIPE
-                        ).stdout.strip()
-                    ):
+                    if spec.version != ScienceExe(PurePath(science_exe)).version():
                         continue
                     if spec.digest and spec.digest.fingerprint:
                         expected_digest = ExpectedDigest(
@@ -57,12 +56,12 @@ def _find_science_on_path(spec: Science) -> PurePath | None:
                         except InputError:
                             continue
                 shutil.copy(science_exe, cache_result.work)
-                return cache_result.path
+                return spec.exe(cache_result.path)
             return None
-    return cache_result.path
+    return spec.exe(cache_result.path)
 
 
-def ensure_installed(spec: Science | None = None) -> PurePath:
+def ensure_installed(spec: Science | None = None) -> ScienceExe:
     """Ensures an appropriate science binary is installed and returns its path.
 
     Args:
@@ -91,3 +90,9 @@ def ensure_installed(spec: Science | None = None) -> PurePath:
         httpx.StreamError,
     ) as e:
         raise ScienceNotFound(str(e))
+
+
+def iter_science_exes() -> Iterator[ScienceExe]:
+    yield from a_scie.iter_science_exes()
+    for path in DOWNLOAD_CACHE.iter_entries(namespace=_PATH_EXES_NAMESPACE):
+        yield ScienceExe(path)

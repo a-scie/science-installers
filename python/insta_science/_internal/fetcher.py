@@ -8,7 +8,7 @@ import logging
 import os
 from datetime import timedelta
 from netrc import NetrcParseError
-from pathlib import Path, PurePath
+from pathlib import PurePath
 from typing import Mapping
 
 import httpx
@@ -89,19 +89,6 @@ def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> ht
     return httpx.Client(follow_redirects=True, headers=headers, auth=auth)
 
 
-def _fetch_to_cache(
-    url: Url, ttl: timedelta | None = None, headers: Mapping[str, str] | None = None
-) -> Path:
-    with DOWNLOAD_CACHE.get_or_create(url, ttl=ttl) as cache_result:
-        if isinstance(cache_result, Missing):
-            with _configured_client(url, headers).stream(
-                "GET", url
-            ) as response, cache_result.work.open("wb") as cache_fp:
-                for data in response.iter_bytes():
-                    cache_fp.write(data)
-    return cache_result.path
-
-
 def _maybe_expected_digest(
     fingerprint: Digest | Fingerprint | Url | None,
     algorithm: str = hashing.DEFAULT_ALGORITHM,
@@ -142,6 +129,7 @@ def _expected_digest(
 
 def fetch_and_verify(
     url: Url,
+    namespace: str,
     fingerprint: Digest | Fingerprint | Url | None = None,
     digest_algorithm: str = hashing.DEFAULT_ALGORITHM,
     executable: bool = False,
@@ -149,7 +137,7 @@ def fetch_and_verify(
     headers: Mapping[str, str] | None = None,
 ) -> PurePath:
     verified_fingerprint = False
-    with DOWNLOAD_CACHE.get_or_create(url, ttl=ttl) as cache_result:
+    with DOWNLOAD_CACHE.get_or_create(url, namespace=namespace, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
             # TODO(John Sirois): XXX: Log or invoke callback for logging.
             # click.secho(f"Downloading {url} ...", fg="green")

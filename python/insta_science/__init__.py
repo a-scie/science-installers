@@ -8,7 +8,9 @@ from ._internal import (
     InputError,
     Platform,
     Science,
+    ScienceExe,
     ScienceNotFound,
+    Url,
     ensure_installed,
 )
 from .version import __version__
@@ -20,7 +22,9 @@ __all__ = (
     "InputError",
     "Platform",
     "Science",
+    "ScienceExe",
     "ScienceNotFound",
+    "Url",
     "__version__",
     "ensure_installed",
 )

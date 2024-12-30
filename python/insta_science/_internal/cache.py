@@ -16,6 +16,8 @@ import appdirs
 from filelock import FileLock
 from typing_extensions import TypeAlias
 
+from insta_science._internal.du import DiskUsage
+
 
 @dataclass(frozen=True)
 class Complete:
@@ -31,22 +33,33 @@ class Missing:
 CacheResult: TypeAlias = Union[Complete, Missing]
 
 
-_TTL_EXPIRY_FORMAT = "%m/%d/%y %H:%M:%S"
-
-
 @dataclass(frozen=True)
 class DownloadCache:
+    _TTL_EXPIRY_FORMAT = "%m/%d/%y %H:%M:%S"
+    _CACHED_EXT = ".cached"
+
+    # Bump this when changing cache layout.
+    _CACHE_VERSION = 1
+
     base_dir: Path
 
+    @property
+    def _base(self) -> Path:
+        return self.base_dir / str(self._CACHE_VERSION)
+
     @contextmanager
-    def get_or_create(self, url: str, ttl: timedelta | None = None) -> Iterator[CacheResult]:
+    def get_or_create(
+        self, url: str, *, namespace: str, ttl: timedelta | None = None
+    ) -> Iterator[CacheResult]:
         """A context manager that yields a `cache result.
 
         If the cache result is `Missing`, the block yielded to should materialize the given url
         to the `Missing.work` path. Upon successful exit from this context manager, the given url's
         content will exist at the cache result path.
         """
-        cached_file = self.base_dir / hashlib.sha256(url.encode()).hexdigest()
+        cached_file = (
+            self._base / namespace / f"{hashlib.sha256(url.encode()).hexdigest()}{self._CACHED_EXT}"
+        )
 
         ttl_file = cached_file.with_suffix(".ttl") if ttl else None
         if ttl_file and not ttl_file.exists():
@@ -54,7 +67,7 @@ class DownloadCache:
         elif ttl_file:
             try:
                 datetime_object = datetime.strptime(
-                    ttl_file.read_text().strip(), _TTL_EXPIRY_FORMAT
+                    ttl_file.read_text().strip(), self._TTL_EXPIRY_FORMAT
                 )
                 if datetime.now() > datetime_object:
                     cached_file.unlink(missing_ok=True)
@@ -79,7 +92,18 @@ class DownloadCache:
                 return
             work.rename(cached_file)
             if ttl_file and ttl:
-                ttl_file.write_text((datetime.now() + ttl).strftime(_TTL_EXPIRY_FORMAT))
+                ttl_file.write_text((datetime.now() + ttl).strftime(self._TTL_EXPIRY_FORMAT))
+
+    def iter_entries(self, *, namespace: str | None = None) -> Iterator[Path]:
+        try:
+            for path in (self._base / namespace if namespace else self._base).iterdir():
+                if path.suffix == self._CACHED_EXT:
+                    yield path
+        except FileNotFoundError:
+            pass
+
+    def usage(self) -> DiskUsage:
+        return DiskUsage.collect(str(self._base))
 
 
 DOWNLOAD_CACHE = DownloadCache(
