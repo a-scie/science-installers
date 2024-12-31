@@ -9,14 +9,14 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Iterator, Union
 
 import appdirs
 from filelock import FileLock
 from typing_extensions import TypeAlias
 
-from insta_science._internal.du import DiskUsage
+from .du import DiskUsage
 
 
 @dataclass(frozen=True)
@@ -106,10 +106,18 @@ class DownloadCache:
         return DiskUsage.collect(str(self._base))
 
 
-DOWNLOAD_CACHE = DownloadCache(
-    base_dir=Path(
-        os.environ.get(
-            "INSTA_SCIENCE_CACHE", appdirs.user_cache_dir(appname="insta-science", appauthor=False)
+def download_cache(cache_dir: PurePath | None = None) -> DownloadCache:
+    return DownloadCache(
+        base_dir=Path(
+            os.path.expanduser(
+                os.environ.get(
+                    "INSTA_SCIENCE_CACHE",
+                    (
+                        str(cache_dir)
+                        if cache_dir
+                        else appdirs.user_cache_dir(appname="insta-science", appauthor=False)
+                    ),
+                )
+            )
         )
     )
-)

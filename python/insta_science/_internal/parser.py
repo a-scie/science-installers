@@ -3,13 +3,15 @@
 
 from __future__ import annotations
 
+import os.path
+from pathlib import PurePath
 from typing import Any, cast
 
 from packaging.version import InvalidVersion, Version
 
 from .errors import InputError
 from .hashing import Digest, Fingerprint
-from .model import Science, Url
+from .model import Configuration, Science, Url
 from .project import PyProjectToml
 
 
@@ -22,17 +24,21 @@ def _assert_dict_str_keys(obj: Any, *, path: str) -> dict[str, Any]:
     return cast("dict[str, Any]", obj)
 
 
-def configured_science(pyproject_toml: PyProjectToml) -> Science:
+def parse_configuration(pyproject_toml: PyProjectToml) -> Configuration:
     pyproject_data = pyproject_toml.parse()
     try:
         insta_science_data = _assert_dict_str_keys(
-            pyproject_data["tool"]["insta-science"]["science"], path="[tool.insta-science.science]"
+            pyproject_data["tool"]["insta-science"], path="[tool.insta-science]"
         )
     except KeyError:
-        return Science()
+        return Configuration()
+
+    science_data = _assert_dict_str_keys(
+        insta_science_data.pop("science", {}), path="[tool.insta-science.science]"
+    )
 
     version: Version | None = None
-    version_str = insta_science_data.pop("version", None)
+    version_str = science_data.pop("version", None)
     if version_str:
         if not isinstance(version_str, str):
             raise InputError(
@@ -49,7 +55,7 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
 
     digest: Digest | None = None
     digest_data = _assert_dict_str_keys(
-        insta_science_data.pop("digest", {}), path="[tool.insta-science.science.digest]"
+        science_data.pop("digest", {}), path="[tool.insta-science.science.digest]"
     )
     if digest_data:
         try:
@@ -87,7 +93,7 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
         digest = Digest(size, fingerprint=Fingerprint(fingerprint))
 
     base_url: Url | None = None
-    base_url_str = insta_science_data.pop("base-url", None)
+    base_url_str = science_data.pop("base-url", None)
     if base_url_str:
         if not isinstance(base_url_str, str):
             raise InputError(
@@ -96,10 +102,10 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
             )
         base_url = Url(base_url_str)
 
-    if insta_science_data:
+    if science_data:
         raise InputError(
             f"Unexpected configuration keys in the [tool.insta-science.science] table: "
-            f"{' '.join(insta_science_data)}"
+            f"{' '.join(science_data)}"
         )
 
     if digest and not version:
@@ -108,8 +114,24 @@ def configured_science(pyproject_toml: PyProjectToml) -> Science:
             "[tool.insta-science.science] `version` is set."
         )
 
-    return (
-        Science(version=version, digest=digest, base_url=base_url)
-        if base_url
-        else Science(version=version, digest=digest)
+    cache_str = insta_science_data.pop("cache", None)
+    if cache_str and not isinstance(cache_str, str):
+        raise InputError(
+            f"The [tool.insta-science] `cache` value should be a string; given: {cache_str} of "
+            f"type {type(cache_str)}."
+        )
+
+    if insta_science_data:
+        raise InputError(
+            f"Unexpected configuration keys in the [tool.insta-science] table: "
+            f"{' '.join(insta_science_data)}"
+        )
+
+    return Configuration(
+        science=(
+            Science(version=version, digest=digest, base_url=base_url)
+            if base_url
+            else Science(version=version, digest=digest)
+        ),
+        cache=PurePath(os.path.expanduser(cache_str)) if cache_str else None,
     )

@@ -15,7 +15,7 @@ import httpx
 from tqdm import tqdm
 
 from . import hashing
-from .cache import DOWNLOAD_CACHE, Missing
+from .cache import DownloadCache, Missing
 from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
@@ -129,6 +129,7 @@ def _expected_digest(
 
 def fetch_and_verify(
     url: Url,
+    cache: DownloadCache,
     namespace: str,
     fingerprint: Digest | Fingerprint | Url | None = None,
     digest_algorithm: str = hashing.DEFAULT_ALGORITHM,
@@ -137,7 +138,7 @@ def fetch_and_verify(
     headers: Mapping[str, str] | None = None,
 ) -> PurePath:
     verified_fingerprint = False
-    with DOWNLOAD_CACHE.get_or_create(url, namespace=namespace, ttl=ttl) as cache_result:
+    with cache.get_or_create(url, namespace=namespace, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
             # TODO(John Sirois): XXX: Log or invoke callback for logging.
             # click.secho(f"Downloading {url} ...", fg="green")

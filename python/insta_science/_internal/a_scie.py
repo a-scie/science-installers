@@ -10,7 +10,7 @@ from typing import Iterator
 
 from packaging.version import Version
 
-from .cache import DOWNLOAD_CACHE
+from .cache import DownloadCache
 from .fetcher import fetch_and_verify
 from .hashing import Digest, Fingerprint
 from .model import Science, ScienceExe, Url
@@ -26,6 +26,7 @@ class _LoadResult:
 
 
 def _load_project_release(
+    cache: DownloadCache,
     base_url: Url,
     binary_name: str,
     version: Version | None = None,
@@ -41,6 +42,7 @@ def _load_project_release(
         ttl = timedelta(days=5)
     path = fetch_and_verify(
         url=Url(f"{base_url}/{version_path}/{qualified_binary_name}"),
+        cache=cache,
         namespace=_DOWNLOAD_NAMESPACE,
         fingerprint=fingerprint,
         executable=True,
@@ -49,9 +51,12 @@ def _load_project_release(
     return _LoadResult(path=path, binary_name=qualified_binary_name)
 
 
-def science(spec: Science = Science(), platform: Platform = CURRENT_PLATFORM) -> ScienceExe:
+def science(
+    cache: DownloadCache, spec: Science = Science(), platform: Platform = CURRENT_PLATFORM
+) -> ScienceExe:
     return spec.exe(
         _load_project_release(
+            cache=cache,
             base_url=spec.base_url,
             binary_name="science-fat",
             version=spec.version,
@@ -61,6 +66,6 @@ def science(spec: Science = Science(), platform: Platform = CURRENT_PLATFORM) ->
     )
 
 
-def iter_science_exes() -> Iterator[ScienceExe]:
-    for path in DOWNLOAD_CACHE.iter_entries(namespace=_DOWNLOAD_NAMESPACE):
+def iter_science_exes(cache: DownloadCache) -> Iterator[ScienceExe]:
+    for path in cache.iter_entries(namespace=_DOWNLOAD_NAMESPACE):
         yield ScienceExe(path)

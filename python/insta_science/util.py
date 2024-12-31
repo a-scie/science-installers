@@ -20,19 +20,17 @@ from . import CURRENT_PLATFORM, InputError, Platform, Science
 from ._colors import Colors, color_support
 from ._internal import a_scie, parser, project, science
 from ._internal.bytes import ByteAmount
-from ._internal.cache import DOWNLOAD_CACHE
+from ._internal.cache import DownloadCache, download_cache
 from ._internal.du import DiskUsage
+from ._internal.model import Configuration
 from .version import __version__
 
 
-def _configured_science_version() -> Version | None:
-    pyproject_toml = project.find_pyproject_toml()
-    return (parser.configured_science(pyproject_toml) if pyproject_toml else Science()).version
-
-
-def download(options: Namespace, colors: Colors) -> Any:
+def download(
+    options: Namespace, configuration: Configuration, cache: DownloadCache, _: Colors
+) -> Any:
     dest = options.dest[0]
-    versions = options.versions or [_configured_science_version()]
+    versions = options.versions or [configuration.science.version]
     platforms = options.platforms or [CURRENT_PLATFORM]
 
     for version in versions:
@@ -46,7 +44,7 @@ def download(options: Namespace, colors: Colors) -> Any:
             binary_name = platform.qualified_binary_name("science-fat")
             dest = dest_dir / binary_name
             print(f"Downloading science {version or 'latest'} for {platform} to {dest}...")
-            science_exe = a_scie.science(spec=Science(version=version), platform=platform)
+            science_exe = a_scie.science(cache, spec=Science(version=version), platform=platform)
             digest = hashlib.sha256()
             with open(science_exe.path, "rb") as read_fp, open(dest, "wb") as write_fp:
                 for chunk in iter(lambda: read_fp.read(io.DEFAULT_BUFFER_SIZE), b""):
@@ -56,12 +54,14 @@ def download(options: Namespace, colors: Colors) -> Any:
             (dest_dir / f"{binary_name}.sha256").write_text(f"{digest.hexdigest()} *{binary_name}")
 
 
-def cache_prune(_: Namespace, colors: Colors) -> Any:
-    retain_version = _configured_science_version()
-    original_du = DOWNLOAD_CACHE.usage()
+def cache_prune(
+    _: Namespace, configuration: Configuration, cache: DownloadCache, colors: Colors
+) -> Any:
+    retain_version = configuration.science.version
+    original_du = cache.usage()
 
     cached: list[tuple[PurePath, Version | None]] = []
-    for science_exe in science.iter_science_exes():
+    for science_exe in science.iter_science_exes(cache):
         version_or_error = science_exe.version()
         cached.append(
             (science_exe.path, version_or_error if isinstance(version_or_error, Version) else None)
@@ -93,7 +93,7 @@ def cache_prune(_: Namespace, colors: Colors) -> Any:
         print(f"Configured to use science {retain_version} but that version is not cached.")
 
     if pruned:
-        freed = ByteAmount.human_readable(original_du.size - DOWNLOAD_CACHE.usage().size)
+        freed = ByteAmount.human_readable(original_du.size - cache.usage().size)
         print(
             f"{colors.green('Cache pruned. Freed')} "
             f"{colors.color(freed, fg='green', style='bold')}."
@@ -102,13 +102,15 @@ def cache_prune(_: Namespace, colors: Colors) -> Any:
         print("No cache entries were pruned.")
 
 
-def cache_purge(_: Namespace, colors: Colors) -> Any:
-    atomic = f"{DOWNLOAD_CACHE.base_dir}.{uuid.uuid4().hex}"
+def cache_purge(_: Namespace, __: Configuration, cache: DownloadCache, colors: Colors) -> Any:
+    atomic = f"{cache.base_dir}.{uuid.uuid4().hex}"
     try:
-        os.rename(DOWNLOAD_CACHE.base_dir, atomic)
+        os.rename(cache.base_dir, atomic)
     except OSError as e:
         if e.errno == errno.ENOENT:
-            return f"Nothing to do ({colors.gray(f'cache not yet established at {DOWNLOAD_CACHE.base_dir}')})."
+            return (
+                f"Nothing to do ({colors.gray(f'cache not yet established at {cache.base_dir}')})."
+            )
         return colors.red(f"Failed to re-name cache dir for pruning: {e}")
 
     du = DiskUsage.collect(atomic)
@@ -122,6 +124,9 @@ def cache_purge(_: Namespace, colors: Colors) -> Any:
 def main() -> Any:
     argument_parser = ArgumentParser(description="Utilities for working with insta-science.")
     argument_parser.add_argument("-V", "--version", action="version", version=__version__)
+    argument_parser.add_argument(
+        "--cache-dir", type=PurePath, help="A custom cache directory to use."
+    )
 
     sub_parsers = argument_parser.add_subparsers()
     download_parser_help = "Download science binaries for offline use."
@@ -190,10 +195,17 @@ def main() -> Any:
     purge_parser.set_defaults(func=cache_purge)
 
     options = argument_parser.parse_args()
+
+    pyproject_toml = project.find_pyproject_toml()
+    configuration = (
+        parser.parse_configuration(pyproject_toml) if pyproject_toml else Configuration()
+    )
+
+    cache = download_cache(cache_dir=options.cache_dir or configuration.cache)
     with color_support() as colors:
         if func := getattr(options, "func", None):
             try:
-                sys.exit(func(options, colors))
+                sys.exit(func(options, configuration, cache, colors))
             except InputError as e:
                 sys.exit(f"{colors.red('Configuration error')}: {colors.yellow(str(e))}")
         argument_parser.print_help()

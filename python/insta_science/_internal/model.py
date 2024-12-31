@@ -71,3 +71,9 @@ class Science:
 
     def exe(self, path: PurePath) -> ScienceExe:
         return ScienceExe(path=path, _version=self.version)
+
+
+@dataclass(frozen=True)
+class Configuration:
+    science: Science = Science()
+    cache: PurePath | None = None

@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.4.2
+
+Actually implement support for `[tool.insta-science] cache` configuration as claimed in the README.
+
 ## 0.4.1
 
 Fix cache location on Windows and document `insta-science` configuration.
