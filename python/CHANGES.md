@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.4.1
+
+Fix cache location on Windows and document `insta-science` configuration.
+
 ## 0.4.0
 
 Flesh out the `insta-science-util` script adding support for downloading `science` executables for

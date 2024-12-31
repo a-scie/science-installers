@@ -108,6 +108,8 @@ class DownloadCache:
 
 DOWNLOAD_CACHE = DownloadCache(
     base_dir=Path(
-        os.environ.get("INSTA_SCIENCE_CACHE", appdirs.user_cache_dir(appname="insta-science"))
+        os.environ.get(
+            "INSTA_SCIENCE_CACHE", appdirs.user_cache_dir(appname="insta-science", appauthor=False)
+        )
     )
 )
