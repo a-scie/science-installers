@@ -88,17 +88,18 @@ wheels = [
 
 [[package]]
 name = "dev-cmd"
-version = "0.10.1"
+version = "0.10.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioconsole" },
     { name = "ansicolors" },
     { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/84/5b/2278e809d863a0258d3810df1a15efb0cf4a404aaee1362df13ff800445d/dev_cmd-0.10.1.tar.gz", hash = "sha256:22ebe51c122903cfec643fdafb01cf203546057fb552285cb25db904f1baac82", size = 35426 }
+sdist = { url = "https://files.pythonhosted.org/packages/f7/63/5c4cca958465d0ef1e2ba9df7eff18b4206dc2aebb928d6432e577b149f3/dev_cmd-0.10.3.tar.gz", hash = "sha256:ae552d3f6049676e3702c1ccbb8e640d5f6f0da00998af0daa25aa77707fbea0", size = 40114 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/44/97f59f566003b1c42e5d58de6550da9bdb1779345e66e75350e312cf5b8f/dev_cmd-0.10.1-py3-none-any.whl", hash = "sha256:54a46e469dc3925a6a66c78969bcc0e9715e071930ade5aed0f99bd06e961de6", size = 24334 },
+    { url = "https://files.pythonhosted.org/packages/72/76/de51ae5c5db41c2b4368746052e97bc8ed152c8c55eac34e424dd10a0e50/dev_cmd-0.10.3-py3-none-any.whl", hash = "sha256:a0621483b43740d919d1c854e231ef92922637231458c3ce27d672e1e7ad4593", size = 26983 },
 ]
 
 [[package]]
