@@ -6,16 +6,26 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
+import sys
 from datetime import timedelta
 from netrc import NetrcParseError
 from pathlib import PurePath
 from typing import Mapping
 
 import httpx
+from httpx import HTTPStatusError, TimeoutException
+from tenacity import (
+    before_sleep_log,
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_exponential_jitter,
+)
 from tqdm import tqdm
 
 from . import hashing
 from .cache import DownloadCache, Missing
+from .colors import color_support
 from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
@@ -127,6 +137,31 @@ def _expected_digest(
         )
 
 
+@retry(
+    # Raise the final exception in a retry chain if all retries fail.
+    reraise=True,
+    retry=retry_if_exception(
+        lambda ex: (
+            isinstance(ex, TimeoutException)
+            or (
+                # See: https://tools.ietf.org/html/rfc2616#page-39
+                isinstance(ex, HTTPStatusError)
+                and ex.response.status_code
+                in (
+                    408,  # Request Time-out
+                    500,  # Internal Server Error
+                    502,  # Bad Gateway
+                    503,  # Service Unavailable
+                    504,  # Gateway Time-out
+                )
+            )
+        )
+    ),
+    stop=stop_after_attempt(3),
+    wait=wait_exponential_jitter(initial=0.5, exp_base=2, jitter=0.5),
+    # This logs the retries since there is a sleep before each (see wait above).
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+)
 def fetch_and_verify(
     url: Url,
     cache: DownloadCache,
@@ -140,50 +175,53 @@ def fetch_and_verify(
     verified_fingerprint = False
     with cache.get_or_create(url, namespace=namespace, ttl=ttl) as cache_result:
         if isinstance(cache_result, Missing):
-            # TODO(John Sirois): XXX: Log or invoke callback for logging.
-            # click.secho(f"Downloading {url} ...", fg="green")
-            work = cache_result.work
-            with _configured_client(url, headers) as client:
-                expected_digest = _expected_digest(
-                    url, headers, fingerprint, algorithm=digest_algorithm
-                )
-                digest = hashlib.new(digest_algorithm)
-                total_bytes = 0
-                with client.stream("GET", url) as response, work.open("wb") as cache_fp:
-                    total = (
-                        int(content_length)
-                        if (content_length := response.headers.get("Content-Length"))
-                        else None
+            with color_support() as colors:
+                print(colors.color(f"Downloading {url} ...", fg="green"), file=sys.stderr)
+                work = cache_result.work
+                with _configured_client(url, headers) as client:
+                    expected_digest = _expected_digest(
+                        url, headers, fingerprint, algorithm=digest_algorithm
                     )
-                    if expected_digest.is_too_big(total):
-                        raise InputError(
-                            f"The content at {url} is expected to be {expected_digest.size} "
-                            f"bytes, but advertises a Content-Length of {total} bytes."
+                    digest = hashlib.new(digest_algorithm)
+                    total_bytes = 0
+                    with client.stream("GET", url) as response, work.open("wb") as cache_fp:
+                        response.raise_for_status()
+                        total = (
+                            int(content_length)
+                            if (content_length := response.headers.get("Content-Length"))
+                            else None
                         )
-                    with tqdm(
-                        total=total, unit_scale=True, unit_divisor=1024, unit="B"
-                    ) as progress:
-                        num_bytes_downloaded = response.num_bytes_downloaded
-                        for data in response.iter_bytes():
-                            total_bytes += len(data)
-                            if expected_digest.is_too_big(total_bytes):
-                                raise InputError(
-                                    f"The download from {url} was expected to be "
-                                    f"{expected_digest.size} bytes, but downloaded "
-                                    f"{total_bytes} so far."
-                                )
-                            digest.update(data)
-                            cache_fp.write(data)
-                            progress.update(response.num_bytes_downloaded - num_bytes_downloaded)
+                        if expected_digest.is_too_big(total):
+                            raise InputError(
+                                f"The content at {url} is expected to be {expected_digest.size} "
+                                f"bytes, but advertises a Content-Length of {total} bytes."
+                            )
+                        with tqdm(
+                            total=total, unit_scale=True, unit_divisor=1024, unit="B"
+                        ) as progress:
                             num_bytes_downloaded = response.num_bytes_downloaded
-                expected_digest.check(
-                    subject=f"download from {url}",
-                    actual_fingerprint=Fingerprint(digest.hexdigest()),
-                    actual_size=total_bytes,
-                )
-                verified_fingerprint = True
-                if executable:
-                    work.chmod(0o755)
+                            for data in response.iter_bytes():
+                                total_bytes += len(data)
+                                if expected_digest.is_too_big(total_bytes):
+                                    raise InputError(
+                                        f"The download from {url} was expected to be "
+                                        f"{expected_digest.size} bytes, but downloaded "
+                                        f"{total_bytes} so far."
+                                    )
+                                digest.update(data)
+                                cache_fp.write(data)
+                                progress.update(
+                                    response.num_bytes_downloaded - num_bytes_downloaded
+                                )
+                                num_bytes_downloaded = response.num_bytes_downloaded
+                    expected_digest.check(
+                        subject=f"download from {url}",
+                        actual_fingerprint=Fingerprint(digest.hexdigest()),
+                        actual_size=total_bytes,
+                    )
+                    verified_fingerprint = True
+                    if executable:
+                        work.chmod(0o755)
 
     if not verified_fingerprint:
         expected_cached_digest = _maybe_expected_digest(
@@ -191,8 +229,7 @@ def fetch_and_verify(
         )
         if expected_cached_digest:
             expected_cached_digest.check_path(
-                subject=f"cached download from {url}",
-                path=cache_result.path,
+                subject=f"cached download from {url}", path=cache_result.path
             )
 
     return cache_result.path

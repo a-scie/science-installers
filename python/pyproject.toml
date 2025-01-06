@@ -12,6 +12,7 @@ dependencies = [
     "filelock",
     "httpx",
     "packaging",
+    "tenacity",
     "tomli; python_version < '3.11'",
     "tqdm",
     "typing-extensions",

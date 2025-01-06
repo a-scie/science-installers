@@ -9,7 +9,7 @@ import sys
 from typing import NoReturn
 
 from . import CURRENT_PLATFORM, InputError, ScienceNotFound, ensure_installed
-from ._colors import color_support
+from ._internal.colors import color_support
 
 
 def main() -> NoReturn:

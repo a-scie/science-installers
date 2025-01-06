@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.4.3
+
+Implement proper HTTP error handling and add retry support in for failed `science` fetches.
+
 ## 0.4.2
 
 Actually implement support for `[tool.insta-science] cache` configuration as claimed in the README.
