@@ -29,6 +29,7 @@ from .colors import color_support
 from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
+from .version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,7 @@ def _configure_auth(url: Url) -> httpx.Auth | tuple[str, str] | None:
 
 def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> httpx.Client:
     headers = dict(headers) if headers else {}
+    headers.setdefault("User-Agent", f"insta-science/{__version__}")
     auth = _configure_auth(url) if "Authorization" not in headers else None
     return httpx.Client(follow_redirects=True, headers=headers, auth=auth)
 

@@ -16,14 +16,13 @@ from typing import Any
 
 from packaging.version import Version
 
-from . import CURRENT_PLATFORM, InputError, Platform, Science
+from . import CURRENT_PLATFORM, InputError, Platform, Science, __version__
 from ._internal import a_scie, parser, project, science
 from ._internal.bytes import ByteAmount
 from ._internal.cache import DownloadCache, download_cache
 from ._internal.colors import Colors, color_support
 from ._internal.du import DiskUsage
 from ._internal.model import Configuration
-from .version import __version__
 
 
 def download(

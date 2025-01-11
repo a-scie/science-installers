@@ -4,7 +4,7 @@
 
 ### Version Bump and Changelog
 
-1. Bump the version in [`insta_science/version.py`](insta_science/version.py).
+1. Bump the version in [`insta_science/_internal/version.py`](insta_science/_internal/version.py).
 2. Run `uv run dev-cmd` as a sanity check on the state of the project.
 3. Update [`CHANGES.md`](CHANGES.md) with any changes that are likely to be useful to consumers.
 4. Run `uv run dev-cmd -q release -- --dry-run` as a sanity check the release will work once the

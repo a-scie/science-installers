@@ -57,7 +57,7 @@ insta-science = "insta_science.shim:main"
 insta-science-util = "insta_science.util:main"
 
 [tool.setuptools.dynamic]
-version = {attr = "insta_science.version.__version__"}
+version = {attr = "insta_science._internal.version.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -71,6 +71,7 @@ dev = [
     "pytest",
     "pytest-xdist",
     "ruff",
+    "setuptools",
     "types-appdirs",
     "types-colorama",
     "types-tqdm",
