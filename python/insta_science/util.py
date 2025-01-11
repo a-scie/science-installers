@@ -30,7 +30,7 @@ def download(
 ) -> Any:
     dest = options.dest[0]
     versions = options.versions or [configuration.science.version]
-    platforms = options.platforms or [CURRENT_PLATFORM]
+    platforms = list(dict.fromkeys(options.platforms)) if options.platforms else [CURRENT_PLATFORM]
 
     for version in versions:
         if version:
@@ -170,7 +170,7 @@ def main() -> Any:
         choices=list(Platform),
         help=(
             "Download science binaries for the specified platform(s). Mutually exclusive with "
-            "`--platform`. By default, only binaries for the current platform are downloaded."
+            "`--all-platforms`. By default, only binaries for the current platform are downloaded."
         ),
     )
     download_parser.set_defaults(func=download)
