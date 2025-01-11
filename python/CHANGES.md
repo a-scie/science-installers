@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.4.5
+
+De-dup `insta-science-util download --platform` and fix its CLI help.
+
 ## 0.4.4
 
 Use a 'User-Agent' header of `insta-science/<version>` when fetching URLs.
