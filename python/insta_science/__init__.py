@@ -11,9 +11,9 @@ from ._internal import (
     ScienceExe,
     ScienceNotFound,
     Url,
+    __version__,
     ensure_installed,
 )
-from .version import __version__
 
 __all__ = (
     "CURRENT_PLATFORM",

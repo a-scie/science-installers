@@ -6,6 +6,7 @@ from .hashing import Fingerprint
 from .model import Digest, Science, ScienceExe, Url
 from .platform import CURRENT_PLATFORM, Platform
 from .science import ensure_installed
+from .version import __version__
 
 __all__ = (
     "CURRENT_PLATFORM",
@@ -17,5 +18,6 @@ __all__ = (
     "ScienceExe",
     "ScienceNotFound",
     "Url",
+    "__version__",
     "ensure_installed",
 )

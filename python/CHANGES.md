@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.4.4
+
+Use a 'User-Agent' header of `insta-science/<version>` when fetching URLs.
+
 ## 0.4.3
 
 Implement proper HTTP error handling and add retry support in for failed `science` fetches.
