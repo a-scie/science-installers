@@ -91,6 +91,7 @@ def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
             """
         )
     )
+    print(pyproject_toml.read_text(), file=sys.stderr)
 
     subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
     subprocess.run(args=["insta-science", "-V"], check=True)
