@@ -83,7 +83,7 @@ def test_download_http_mirror(pyproject_toml: Path, server: Server) -> None:
 
 def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
     mirror_dir = tmp_path / "mirror"
-    mirror_url = f"file:{'///' if Platform.current().is_windows else '//'}{mirror_dir}"
+    mirror_url = f"file:{'///' if Platform.current().is_windows else '//'}{mirror_dir.as_posix()}"
     pyproject_toml.write_text(
         dedent(
             f"""\
