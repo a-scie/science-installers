@@ -40,7 +40,8 @@ There is partial support for offline or firewalled `science` use with `insta-sci
 a repository of science binaries by using the `insta-science-util download` command to download
 `science` binaries for one or more versions and one or more target platforms. The directory you
 download these binaries to will have the appropriate structure for `insta-science` to use if you
-serve up that directory using your method of choice at the configured base url.
+serve up that directory using your method of choice at the configured base url. Note that file://
+base URLs are supported.
 
 Full offline use requires similar support in `science` for downloading offline copies of the
 [`scie-jump` binaries](https://github.com/a-scie/jump/releases), [`ptex` binaries](

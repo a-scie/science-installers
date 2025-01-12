@@ -50,8 +50,7 @@ class Platform(Enum):
                 return cls.Windows_x86_64
 
         raise InputError(
-            f"The current operating system / machine pair is not supported!: "
-            f"{system} / {machine}"
+            f"The current operating system / machine pair is not supported!: {system} / {machine}"
         )
 
     @property
