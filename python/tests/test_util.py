@@ -1,5 +1,6 @@
 # Copyright 2024 Science project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
+import os
 import re
 import subprocess
 import sys
@@ -91,7 +92,8 @@ def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
             """
         )
     )
-    print(pyproject_toml.read_text(), file=sys.stderr)
+    print(pyproject_toml.read_text())
 
     subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
-    subprocess.run(args=["insta-science", "-V"], check=True)
+    result = subprocess.run(args=["insta-science", "-V"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    assert result.returncode == 0, result.stdout
