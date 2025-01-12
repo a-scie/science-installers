@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.5.0
+
+Add support for file:// base URLs to allow using local `science` binary mirrors.
+
 ## 0.4.5
 
 De-dup `insta-science-util download --platform` and fix its CLI help.

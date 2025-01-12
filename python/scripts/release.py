@@ -155,7 +155,7 @@ def check_version_and_changelog() -> Release | ReleaseError:
                 For example:
                 ------------
     
-                {'#' * RELEASE_HEADING_LEVEL} {__version__}
+                {"#" * RELEASE_HEADING_LEVEL} {__version__}
     
                 These are the {__version__} release notes...
                 """

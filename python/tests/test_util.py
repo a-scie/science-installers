@@ -64,7 +64,7 @@ def server(tmp_path: Path) -> Iterator[Server]:
         process.kill()
 
 
-def test_download(pyproject_toml: Path, server: Server) -> None:
+def test_download_http_mirror(pyproject_toml: Path, server: Server) -> None:
     pyproject_toml.write_text(
         dedent(
             f"""\
@@ -76,4 +76,21 @@ def test_download(pyproject_toml: Path, server: Server) -> None:
     )
 
     subprocess.run(args=["insta-science-util", "download", server.root], check=True)
+    subprocess.run(args=["insta-science", "-V"], check=True)
+
+
+def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
+    mirror_dir = tmp_path / "mirror"
+
+    pyproject_toml.write_text(
+        dedent(
+            f"""\
+            [tool.insta-science.science]
+            version = "0.9.0"
+            base-url = "file://{mirror_dir.as_posix()}"
+            """
+        )
+    )
+
+    subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
     subprocess.run(args=["insta-science", "-V"], check=True)

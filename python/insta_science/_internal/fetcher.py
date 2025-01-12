@@ -4,16 +4,20 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import logging
 import os
 import sys
+from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import timedelta
 from netrc import NetrcParseError
-from pathlib import PurePath
-from typing import Mapping
+from pathlib import Path, PurePath
+from types import TracebackType
+from typing import BinaryIO, Iterator, Mapping, Protocol
 
 import httpx
-from httpx import HTTPStatusError, TimeoutException
+from httpx import HTTPStatusError, Request, Response, SyncByteStream, TimeoutException, codes
 from tenacity import (
     before_sleep_log,
     retry,
@@ -94,7 +98,94 @@ def _configure_auth(url: Url) -> httpx.Auth | tuple[str, str] | None:
     return None
 
 
-def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> httpx.Client:
+class Client(Protocol):
+    def __enter__(self) -> Client: ...
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None: ...
+
+    def get(self, url: Url) -> Response: ...
+
+    @contextmanager
+    def stream(self, method: str, url: Url) -> Iterator[Response]: ...
+
+
+class FileClient:
+    def __enter__(self) -> Client:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
+        return None
+
+    @staticmethod
+    def _vet_request(url: Url, method: str = "GET") -> tuple[Request, Path] | Response:
+        request = Request(method=method, url=url)
+        if request.method not in ("GET", "HEAD"):
+            return Response(status_code=codes.METHOD_NOT_ALLOWED, request=request)
+
+        path = Path(url.info.path)
+        if not path.exists():
+            return Response(status_code=codes.NOT_FOUND, request=request)
+        if not path.is_file():
+            return Response(status_code=codes.BAD_REQUEST, request=request)
+        if not os.access(path, os.R_OK):
+            return Response(status_code=codes.FORBIDDEN, request=request)
+
+        return request, path
+
+    def get(self, url: Url) -> Response:
+        result = self._vet_request(url)
+        if isinstance(result, Response):
+            return result
+
+        request, path = result
+        content = path.read_bytes()
+        return httpx.Response(
+            status_code=codes.OK,
+            headers={"Content-Length": str(len(content))},
+            content=content,
+            request=request,
+        )
+
+    @dataclass(frozen=True)
+    class FileByteStream(SyncByteStream):
+        stream: BinaryIO
+
+        def __iter__(self) -> Iterator[bytes]:
+            return iter(lambda: self.stream.read(io.DEFAULT_BUFFER_SIZE), b"")
+
+        def close(self) -> None:
+            self.stream.close()
+
+    @contextmanager
+    def stream(self, method: str, url: Url) -> Iterator[httpx.Response]:
+        result = self._vet_request(url, method=method)
+        if isinstance(result, Response):
+            yield result
+            return
+
+        request, path = result
+        with path.open("rb") as fp:
+            yield httpx.Response(
+                status_code=codes.OK,
+                headers={"Content-Length": str(path.stat().st_size)},
+                stream=self.FileByteStream(fp),
+                request=request,
+            )
+
+
+def _configured_client(url: Url, headers: Mapping[str, str] | None = None) -> Client:
+    if "file" == url.info.scheme:
+        return FileClient()
     headers = dict(headers) if headers else {}
     headers.setdefault("User-Agent", f"insta-science/{__version__}")
     auth = _configure_auth(url) if "Authorization" not in headers else None
@@ -134,7 +225,9 @@ def _expected_digest(
 
     with _configured_client(url, headers) as client:
         return ExpectedDigest(
-            fingerprint=Fingerprint(client.get(f"{url}.{algorithm}").text.split(" ", 1)[0].strip()),
+            fingerprint=Fingerprint(
+                client.get(Url(f"{url}.{algorithm}")).text.split(" ", 1)[0].strip()
+            ),
             algorithm=algorithm,
         )
 
