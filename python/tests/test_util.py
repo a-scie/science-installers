@@ -94,8 +94,6 @@ def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
             """
         )
     )
-    if Platform.current().is_windows:
-        assert False, os.linesep.join((str(pyproject_toml), pyproject_toml.read_text()))
 
     subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
     subprocess.run(args=["insta-science", "-V"], check=True)

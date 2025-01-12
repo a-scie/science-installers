@@ -35,6 +35,7 @@ from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
 from .version import __version__
+from .. import Platform
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +134,16 @@ class FileClient:
         if request.method not in ("GET", "HEAD"):
             return Response(status_code=codes.METHOD_NOT_ALLOWED, request=request)
 
-        path = Path(urllib.parse.unquote_plus(url.info.path))
+        raw_path = urllib.parse.unquote_plus(url.info.path)
+        if Platform.current().is_windows:
+            # Handle `file:///C:/a/path` -> `C:/a/path`.
+            parts = raw_path.split("/")
+            if ":" == parts[1][-1]:
+                parts.pop(0)
+            path = Path("/".join(parts))
+        else:
+            path = Path(raw_path)
+
         if not path.exists():
             return Response(status_code=codes.NOT_FOUND, request=request)
         if not path.is_file():
