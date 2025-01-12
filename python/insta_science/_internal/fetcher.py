@@ -28,6 +28,7 @@ from tenacity import (
 )
 from tqdm import tqdm
 
+from .. import Platform
 from . import hashing
 from .cache import DownloadCache, Missing
 from .colors import color_support
@@ -35,7 +36,6 @@ from .errors import InputError
 from .hashing import Digest, ExpectedDigest, Fingerprint
 from .model import Url
 from .version import __version__
-from .. import Platform
 
 logger = logging.getLogger(__name__)
 
