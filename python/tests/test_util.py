@@ -83,21 +83,20 @@ def test_download_http_mirror(pyproject_toml: Path, server: Server) -> None:
 
 def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
     mirror_dir = tmp_path / "mirror"
-
+    mirror_url = (
+        f"file:///{mirror_dir.as_posix()}"
+        if Platform.current().is_windows
+        else f"file://{mirror_dir}"
+    )
     pyproject_toml.write_text(
         dedent(
             f"""\
             [tool.insta-science.science]
             version = "0.9.0"
-            base-url = "file://{mirror_dir.as_posix()}"
+            base-url = "{mirror_url}"
             """
         )
     )
-    if Platform.current().is_windows:
-        assert False, pyproject_toml.read_text()
 
     subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
-    result = subprocess.run(
-        args=["insta-science", "-V"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-    )
-    assert result.returncode == 0, result.stdout
+    subprocess.run(args=["insta-science", "-V"], check=True)

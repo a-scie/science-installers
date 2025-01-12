@@ -134,9 +134,6 @@ class FileClient:
             return Response(status_code=codes.METHOD_NOT_ALLOWED, request=request)
 
         path = Path(urllib.parse.unquote_plus(url.info.path))
-        if not path.is_absolute():
-            path = Path("/") / path
-        # Client error '404 Not Found' for url 'file://c/Users/runneradmin/AppData/Local/Temp/pytest-of-runneradmin/pytest-0/popen-gw1/test_download_file_mirror0/mirror/download/v0.9.0/science-fat-windows-x86_64.exe'
         if not path.exists():
             return Response(status_code=codes.NOT_FOUND, request=request)
         if not path.is_file():
