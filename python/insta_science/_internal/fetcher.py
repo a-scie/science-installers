@@ -8,6 +8,7 @@ import io
 import logging
 import os
 import sys
+import urllib.parse
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import timedelta
@@ -132,7 +133,7 @@ class FileClient:
         if request.method not in ("GET", "HEAD"):
             return Response(status_code=codes.METHOD_NOT_ALLOWED, request=request)
 
-        path = Path(url.info.path)
+        path = Path(urllib.parse.unquote_plus(url.info.path))
         if not path.exists():
             return Response(status_code=codes.NOT_FOUND, request=request)
         if not path.is_file():
