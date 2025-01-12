@@ -13,6 +13,8 @@ from typing import Iterator
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
+from insta_science import Platform
+
 
 @pytest.fixture(autouse=True)
 def cache_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
@@ -91,7 +93,8 @@ def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
             """
         )
     )
-    print(pyproject_toml.read_text())
+    if Platform.current().is_windows:
+        assert False, pyproject_toml.read_text()
 
     subprocess.run(args=["insta-science-util", "download", mirror_dir], check=True)
     result = subprocess.run(
