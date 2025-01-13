@@ -36,18 +36,16 @@ detailed below:
 
 ## Offline Use
 
-There is partial support for offline or firewalled `science` use with `insta-science`. You can seed
+There is full support for offline or firewalled `science` use with `insta-science`. You can seed
 a repository of science binaries by using the `insta-science-util download` command to download
 `science` binaries for one or more versions and one or more target platforms. The directory you
 download these binaries to will have the appropriate structure for `insta-science` to use if you
 serve up that directory using your method of choice at the configured base url. Note that file://
 base URLs are supported.
 
-Full offline use requires similar support in `science` for downloading offline copies of the
-[`scie-jump` binaries](https://github.com/a-scie/jump/releases), [`ptex` binaries](
-https://github.com/a-scie/ptex/releases) and interpreter provider provided archives; e.g.
-[PythonBuildStandalone](https://science.scie.app/_/providers/PythonBuildStandalone.html)
-distributions. That support is tracked in [science issue #114](https://github.com/a-scie/lift/issues/114).
+Likewise, you can seed a repository of `ptex` binaries, `scie-jump` binaries and interpreter
+provider distributions by using the `insta-science download {ptex,scie-jump,provider} ...` family
+of commands and updating corresponding `base_url` options in your scie lift manifest.
 
 ## Development
 
