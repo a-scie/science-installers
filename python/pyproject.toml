@@ -98,7 +98,10 @@ check-fmt = ["ruff", "format", "--diff"]
 lint = ["ruff", "check", "--fix"]
 check-lint = ["ruff", "check"]
 
-type-check = [
+[tool.dev-cmd.commands.type-check.factors]
+py = "The Python version to type check in <major>.<minor> form; i.e.: 3.13."
+[tool.dev-cmd.commands.type-check]
+args = [
     "mypy",
     "--python-version", "{-py:{markers.python_version}}",
     "--cache-dir", ".mypy_cache_{markers.python_version}",
@@ -119,14 +122,18 @@ args = ["pytest", "-n", "auto"]
 cwd = "tests"
 accepts-extra-args = true
 
-[tool.dev-cmd.tasks]
-checks = [
+[tool.dev-cmd.tasks.checks]
+description = "Runs all development checks, including auto-formatting code."
+steps = [
     "fmt",
     "lint",
     ["type-check-py3.{8..13}"],
     "test",
 ]
-ci = [["check-fmt", "check-lint", "type-check"], "test"]
+
+[tool.dev-cmd.tasks.ci]
+description = "Runs all checks used for CI."
+steps = [["check-fmt", "check-lint", "type-check"], "test"]
 
 [tool.dev-cmd]
 default = "checks"
