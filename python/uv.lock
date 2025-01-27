@@ -88,7 +88,7 @@ wheels = [
 
 [[package]]
 name = "dev-cmd"
-version = "0.12.0"
+version = "0.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioconsole" },
@@ -98,9 +98,9 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/a2/823d13b9e22cdf13c10374502af2112e0c0dd6b60a49acda2e2777471ada/dev_cmd-0.12.0.tar.gz", hash = "sha256:dc032b71eb812f4dcba36fa36df3b8a88a8b2d3eb84763fbd8e5081608421b9f", size = 38949 }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/15/9486a9383319132c3cc2005364508e8ca2ab4296c8401307f685795a0043/dev_cmd-0.15.0.tar.gz", hash = "sha256:f2ae669574c43bcf3319123679e8f98d8d9af549a81da84856a889e7c5380b55", size = 41750 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/49/698970311e1031492906d42f1add367ee17795d7403a9ec320eae0801f4e/dev_cmd-0.12.0-py3-none-any.whl", hash = "sha256:01e2eb3c7878246080fa17f4068db0c59a39a5d4375cf92cbc4070aea69624a5", size = 32469 },
+    { url = "https://files.pythonhosted.org/packages/68/0e/6c3d8b6ae50f82d54cdaef99f1da5bd1147b6de78121935011dcbc212766/dev_cmd-0.15.0-py3-none-any.whl", hash = "sha256:36a72f4e8d7bca161277af33d00a828eefa759b45554ce6bed71d1cfd1fc3bc4", size = 34739 },
 ]
 
 [[package]]
@@ -188,6 +188,7 @@ wheels = [
 
 [[package]]
 name = "insta-science"
+version = "0.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "ansicolors" },
