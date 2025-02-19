@@ -68,16 +68,39 @@ jobs:
       - name: Run CI checks
         run: uv --directory python run dev-cmd --color always ci -- -vvs
   musl:
-    name: "Alpine Linux (musl)"
+    name: "Other Linuxes"
     needs: org-check
     runs-on: ubuntu-24.04
-    container: python:3.13-alpine
+    strategy:
+      matrix:
+        include:
+          - name: "Alpine Linux (musl libc)"
+            image: python:3.13-alpine
+            platform: linux/amd64
+          - name: "Linux ARM64"
+            image: python:3.13-bookworm
+            platform: linux/arm64
+          - name: "Linux ARMv7"
+            image: python:3.13-bookworm
+            platform: linux/arm/v7
+          - name: "Linux PPC64le"
+            image: python:3.13-bookworm
+            platform: linux/ppc64le
+          - name: "Linux s390x"
+            image: python:3.13-bookworm
+            platform: linux/s390x
     steps:
      - name: Checkout science-installers
        uses: actions/checkout@v4
-     - name: Run CI checks
-       shell: sh
+     - name: ${{ matrix.name }}
        run: |
-         pip install --root-user-action ignore uv
-         uv --directory python run dev-cmd --color always ci -- -vvs
+         docker run --rm -it \
+           -v $PWD:/code \
+           -w /code \
+           --platform ${{ matrix.platform }} \
+           ${{ matrix.image }} \
+             sh -euc '
+               pip install --root-user-action ignore uv &&
+               uv --directory python run dev-cmd --color always test -- -vvs
+            '
 
