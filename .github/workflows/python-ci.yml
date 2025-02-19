@@ -67,7 +67,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run CI checks
         run: uv --directory python run dev-cmd --color always ci -- -vvs
-  musl:
+  other-linuxes:
     name: "Other Linuxes"
     needs: org-check
     runs-on: ubuntu-24.04
@@ -103,4 +103,19 @@ jobs:
                pip install --root-user-action ignore uv &&
                uv --directory python run dev-cmd --color always test -- -vvs
             '
+  final-status:
+    name: Gather Final Status
+    needs:
+      - checks
+      - other-linuxes
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check Non-Success
+        if: |
+          contains(needs.*.result, 'cancelled') ||
+          contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'skipped')
+        run: "false"
+      - name: Success
+        run: "true"
 
