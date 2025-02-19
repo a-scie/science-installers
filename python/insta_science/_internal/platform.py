@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import platform
+import subprocess
 from enum import Enum
+from functools import lru_cache
 
 from .errors import InputError
 
@@ -64,11 +66,33 @@ class Platform(Enum):
     def binary_name(self, binary_name: str) -> str:
         return f"{binary_name}{self.extension}"
 
-    def qualified_binary_name(self, binary_name: str) -> str:
-        return f"{binary_name}-{self.value}{self.extension}"
+    def qualified_binary_name(self, binary_name: str, libc: LibC | None = None) -> str:
+        platform_ = self.value
+        if libc is LibC.MUSL and self is Platform.Linux_x86_64:
+            platform_ = f"musl-{platform_}"
+        return f"{binary_name}-{platform_}{self.extension}"
 
     def __str__(self) -> str:
         return self.value
 
 
 CURRENT_PLATFORM = Platform.current()
+
+
+class LibC(Enum):
+    GLIBC = "gnu"
+    MUSL = "musl"
+
+    @classmethod
+    @lru_cache(maxsize=None)
+    def current(cls) -> LibC | None:
+        if CURRENT_PLATFORM is not Platform.Linux_x86_64:
+            return None
+        result = subprocess.run(args=["ldd", "/bin/sh"], capture_output=True, text=True)
+        return LibC.MUSL if result.returncode == 0 and "musl" in result.stdout else LibC.GLIBC
+
+    def __str__(self) -> str:
+        return self.value
+
+
+CURRENT_LIBC = LibC.current()

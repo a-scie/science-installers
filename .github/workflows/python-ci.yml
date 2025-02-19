@@ -67,4 +67,56 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run CI checks
         run: uv --directory python run dev-cmd --color always ci -- -vvs
+  other-linuxes:
+    name: ${{ matrix.name }}
+    needs: org-check
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - name: "Alpine Linux (musl libc)"
+            image: python:3.13-alpine
+            platform: linux/amd64
+          - name: "Linux ARM64"
+            image: python:3.13-bookworm
+            platform: linux/arm64
+          - name: "Linux ARMv7"
+            image: python:3.13-bookworm
+            platform: linux/arm/v7
+          - name: "Linux PPC64le"
+            image: python:3.13-bookworm
+            platform: linux/ppc64le
+          - name: "Linux s390x"
+            image: python:3.13-bookworm
+            platform: linux/s390x
+    steps:
+     - name: Checkout science-installers
+       uses: actions/checkout@v4
+     - name: Run tests
+       run: |
+         docker run --privileged --rm tonistiigi/binfmt --install ${{ matrix.platform }}
+         docker run --rm \
+           -v $PWD:/code \
+           -w /code \
+           --platform ${{ matrix.platform }} \
+           ${{ matrix.image }} \
+             sh -euc '
+               pip install --root-user-action ignore uv &&
+               uv --directory python run dev-cmd --color always test -- -vvs
+            '
+  final-status:
+    name: Gather Final Status
+    needs:
+      - checks
+      - other-linuxes
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check Non-Success
+        if: |
+          contains(needs.*.result, 'cancelled') ||
+          contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'skipped')
+        run: "false"
+      - name: Success
+        run: "true"
 

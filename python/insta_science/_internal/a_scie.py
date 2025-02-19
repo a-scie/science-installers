@@ -14,7 +14,7 @@ from .cache import DownloadCache
 from .fetcher import fetch_and_verify
 from .hashing import Digest, Fingerprint
 from .model import Science, ScienceExe, Url
-from .platform import CURRENT_PLATFORM, Platform
+from .platform import CURRENT_LIBC, CURRENT_PLATFORM, LibC, Platform
 
 _DOWNLOAD_NAMESPACE = "url-exes"
 
@@ -32,8 +32,9 @@ def _load_project_release(
     version: Version | None = None,
     fingerprint: Digest | Fingerprint | None = None,
     platform: Platform = CURRENT_PLATFORM,
+    libc: LibC | None = CURRENT_LIBC,
 ) -> _LoadResult:
-    qualified_binary_name = platform.qualified_binary_name(binary_name)
+    qualified_binary_name = platform.qualified_binary_name(binary_name, libc=libc)
     if version:
         version_path = f"download/v{version}"
         ttl = None
@@ -52,7 +53,10 @@ def _load_project_release(
 
 
 def science(
-    cache: DownloadCache, spec: Science = Science(), platform: Platform = CURRENT_PLATFORM
+    cache: DownloadCache,
+    spec: Science = Science(),
+    platform: Platform = CURRENT_PLATFORM,
+    libc: LibC | None = CURRENT_LIBC,
 ) -> ScienceExe:
     return spec.exe(
         _load_project_release(
@@ -62,6 +66,7 @@ def science(
             version=spec.version,
             fingerprint=spec.digest,
             platform=platform,
+            libc=libc,
         ).path
     )
 

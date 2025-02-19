@@ -8,8 +8,9 @@ import subprocess
 import sys
 from typing import NoReturn
 
-from . import CURRENT_PLATFORM, InputError, ScienceNotFound, ensure_installed
+from . import InputError, ScienceNotFound, ensure_installed
 from ._internal.colors import color_support
+from ._internal.platform import CURRENT_PLATFORM
 
 
 def main() -> NoReturn:
