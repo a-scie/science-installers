@@ -68,7 +68,7 @@ jobs:
       - name: Run CI checks
         run: uv --directory python run dev-cmd --color always ci -- -vvs
   other-linuxes:
-    name: "Other Linuxes"
+    name: ${{ matrix.name }}
     needs: org-check
     runs-on: ubuntu-24.04
     strategy:
@@ -92,8 +92,9 @@ jobs:
     steps:
      - name: Checkout science-installers
        uses: actions/checkout@v4
-     - name: ${{ matrix.name }}
+     - name: Run tests
        run: |
+         docker run --privileged --rm tonistiigi/binfmt --install ${{ matrix.platform }}
          docker run --rm \
            -v $PWD:/code \
            -w /code \
