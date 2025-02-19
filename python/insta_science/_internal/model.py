@@ -31,7 +31,7 @@ class ScienceExe:
         try:
             version = Version(
                 subprocess.run(
-                    args=[self.path, "-V"], text=True, stdout=subprocess.PIPE
+                    args=[self.path, "-V"], capture_output=True, text=True, check=True
                 ).stdout.strip()
             )
         except CalledProcessError as e:
