@@ -43,7 +43,7 @@ def download(
 
         for platform in platforms:
             for libc in libcs:
-                binary_name = platform.qualified_binary_name("science-fat")
+                binary_name = platform.qualified_binary_name("science-fat", libc=libc)
                 dest = dest_dir / binary_name
                 print(f"Downloading science {version or 'latest'} for {platform} to {dest}...")
                 science_exe = a_scie.science(

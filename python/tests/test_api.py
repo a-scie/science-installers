@@ -38,17 +38,19 @@ def test_pyproject_toml_default(pyproject_toml: Path):
 
 
 def test_version_spec():
-    science_exe = ensure_installed(spec=Science.spec(version="0.9.0"))
+    science_exe = ensure_installed(spec=Science.spec(version="0.12.0"))
     assert is_exe(science_exe.path)
-    assert_science_exe_version(science_exe, "0.9.0")
+    assert_science_exe_version(science_exe, "0.12.0")
 
 
-def test_digest_spec(expected_v0_9_0_size: int, expected_v0_9_0_fingerprint: str):
+def test_digest_spec(expected_v0_12_0_size: int, expected_v0_12_0_fingerprint: str):
     science_exe = ensure_installed(
         spec=Science.spec(
-            version="0.9.0",
-            digest=Digest.spec(size=expected_v0_9_0_size, fingerprint=expected_v0_9_0_fingerprint),
+            version="0.12.0",
+            digest=Digest.spec(
+                size=expected_v0_12_0_size, fingerprint=expected_v0_12_0_fingerprint
+            ),
         )
     )
     assert is_exe(science_exe.path)
-    assert_science_exe_version(science_exe, "0.9.0")
+    assert_science_exe_version(science_exe, "0.12.0")

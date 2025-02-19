@@ -91,5 +91,8 @@ class LibC(Enum):
         result = subprocess.run(args=["ldd", "/bin/sh"], capture_output=True, text=True)
         return LibC.MUSL if result.returncode == 0 and "musl" in result.stdout else LibC.GLIBC
 
+    def __str__(self) -> str:
+        return self.value
+
 
 CURRENT_LIBC = LibC.current()
