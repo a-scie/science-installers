@@ -16,13 +16,14 @@ from typing import Any
 
 from packaging.version import Version
 
-from . import CURRENT_PLATFORM, InputError, Platform, Science, __version__
+from . import InputError, Science, __version__
 from ._internal import a_scie, parser, project, science
 from ._internal.bytes import ByteAmount
 from ._internal.cache import DownloadCache, download_cache
 from ._internal.colors import Colors, color_support
 from ._internal.du import DiskUsage
 from ._internal.model import Configuration
+from ._internal.platform import CURRENT_LIBC, CURRENT_PLATFORM, LibC, Platform
 
 
 def download(
@@ -31,6 +32,7 @@ def download(
     dest = options.dest[0]
     versions = options.versions or [configuration.science.version]
     platforms = list(dict.fromkeys(options.platforms)) if options.platforms else [CURRENT_PLATFORM]
+    libcs = list(dict.fromkeys(options.libcs)) if options.libcs else [CURRENT_LIBC]
 
     for version in versions:
         if version:
@@ -40,17 +42,22 @@ def download(
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         for platform in platforms:
-            binary_name = platform.qualified_binary_name("science-fat")
-            dest = dest_dir / binary_name
-            print(f"Downloading science {version or 'latest'} for {platform} to {dest}...")
-            science_exe = a_scie.science(cache, spec=Science(version=version), platform=platform)
-            digest = hashlib.sha256()
-            with open(science_exe.path, "rb") as read_fp, open(dest, "wb") as write_fp:
-                for chunk in iter(lambda: read_fp.read(io.DEFAULT_BUFFER_SIZE), b""):
-                    write_fp.write(chunk)
-                    digest.update(chunk)
-            shutil.copymode(science_exe.path, dest)
-            (dest_dir / f"{binary_name}.sha256").write_text(f"{digest.hexdigest()} *{binary_name}")
+            for libc in libcs:
+                binary_name = platform.qualified_binary_name("science-fat")
+                dest = dest_dir / binary_name
+                print(f"Downloading science {version or 'latest'} for {platform} to {dest}...")
+                science_exe = a_scie.science(
+                    cache, spec=Science(version=version), platform=platform, libc=libc
+                )
+                digest = hashlib.sha256()
+                with open(science_exe.path, "rb") as read_fp, open(dest, "wb") as write_fp:
+                    for chunk in iter(lambda: read_fp.read(io.DEFAULT_BUFFER_SIZE), b""):
+                        write_fp.write(chunk)
+                        digest.update(chunk)
+                shutil.copymode(science_exe.path, dest)
+                (dest_dir / f"{binary_name}.sha256").write_text(
+                    f"{digest.hexdigest()} *{binary_name}"
+                )
 
 
 def cache_prune(
@@ -171,6 +178,17 @@ def main() -> Any:
         help=(
             "Download science binaries for the specified platform(s). Mutually exclusive with "
             "`--all-platforms`. By default, only binaries for the current platform are downloaded."
+        ),
+    )
+    download_parser.add_argument(
+        "--libc",
+        dest="libcs",
+        action="append",
+        type=LibC,
+        choices=list(LibC),
+        help=(
+            "Choose binaries that link to the specified libc when downloading for a Linux "
+            "platform. Binaries that link against gnu libc by will be chosen by default."
         ),
     )
     download_parser.set_defaults(func=download)
