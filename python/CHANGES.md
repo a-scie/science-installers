@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.6.1
+
+Fix cache pruning for foreign science binaries downloaded via `insta-science-util download`.
+
 ## 0.6.0
 
 Add support for science musl releases.
