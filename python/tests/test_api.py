@@ -6,11 +6,10 @@ from textwrap import dedent
 
 import pytest
 from packaging.version import Version
-
-from insta_science._internal import LibC, CURRENT_LIBC
 from testing import is_exe
 
-from insta_science import Digest, Science, ScienceExe, ensure_installed, CURRENT_PLATFORM, Platform
+from insta_science import CURRENT_PLATFORM, Digest, Platform, Science, ScienceExe, ensure_installed
+from insta_science._internal import CURRENT_LIBC, LibC
 
 
 def assert_science_exe_version(science_exe: ScienceExe, expected_version: str) -> None:
@@ -30,7 +29,7 @@ def test_simple():
 #  the skip: https://github.com/a-scie/science-installers/issues/32
 @pytest.mark.skipif(
     (CURRENT_PLATFORM, CURRENT_LIBC) == (Platform.Linux_x86_64, LibC.MUSL),
-    reason="Only the latest release (0.12.0) supports 64 bit musl Linux."
+    reason="Only the latest release (0.12.0) supports 64 bit musl Linux.",
 )
 def test_pyproject_toml_default(pyproject_toml: Path):
     pyproject_toml.write_text(
