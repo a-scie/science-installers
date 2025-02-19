@@ -75,9 +75,9 @@ jobs:
     steps:
      - name: Checkout science-installers
        uses: actions/checkout@v4
-     - name: Install the latest version of uv
-       uses: astral-sh/setup-uv@v4
      - name: Run CI checks
        shell: sh
-       run: uv --directory python run dev-cmd --color always ci -- -vvs
+       run: |
+         pip install --root-user-action ignore uv
+         uv --directory python run dev-cmd --color always ci -- -vvs
 
