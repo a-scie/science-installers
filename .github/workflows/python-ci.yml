@@ -66,7 +66,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run CI checks
-        run: uv --directory python run dev-cmd --color always ci -- -vvs
+        run: uv --directory python run dev-cmd --color always --timings ci -- -vvs
   other-linuxes:
     name: ${{ matrix.name }}
     needs: org-check
@@ -102,7 +102,7 @@ jobs:
            ${{ matrix.image }} \
              sh -euc '
                pip install --root-user-action ignore uv &&
-               uv --directory python run dev-cmd --color always test -- -vvs
+               uv --directory python run dev-cmd --color always --timings test -- -vvs
             '
   final-status:
     name: Gather Final Status
