@@ -1,6 +1,30 @@
 [build-system]
-requires = ["setuptools"]
-backend = "setuptools.build_meta"
+requires = [
+    # 1st publication of pex.build_backend.wrap was in Pex 2.50.0.
+    "pex>=2.50",
+
+    # 1st support for license expressions was in setuptools 77.0.0.
+    "setuptools>=77",
+]
+build-backend = "pex.build_backend.wrap"
+
+[tool.pex.build_backend]
+delegate-build-backend = "setuptools.build_meta"
+
+[[tool.pex.build_backend.script-locks]]
+command = [
+    "uv",
+    "export",
+    "--format",
+    "pylock.toml",
+    "--no-header",
+    "--no-emit-project",
+    "--all-extras",
+    "--no-dev",
+    "-q",
+    "-o",
+    "{lock_path}",
+]
 
 [project]
 name = "insta-science"
@@ -23,12 +47,12 @@ authors = [
 ]
 description = "A tool to help with installing and using `science` in Python projects."
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 keywords = ["automation", "command", "runner", "testing"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
@@ -67,7 +91,7 @@ include = ["insta_science*"]
 dev = [
     "dev-cmd",
     "marko",
-    "mypy",
+    "mypy==1.14.1",
     "pytest",
     "pytest-xdist",
     "ruff",

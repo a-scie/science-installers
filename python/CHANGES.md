@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.8.0
+
+Add `pex3 run` pylock.toml locked run support.
+
 ## 0.7.0
 
 Add support for science Linux riscv64 releases.
