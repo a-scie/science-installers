@@ -57,7 +57,7 @@ jobs:
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v4
       - name: Build sdist and wheel
-        run: uv --directory python --timings build
+        run: uv --directory python build
       - name: Publish insta-science ${{ needs.determine-tag.outputs.release-version }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
