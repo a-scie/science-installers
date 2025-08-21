@@ -2,9 +2,7 @@
 requires = [
     # 1st publication of pex.build_backend.wrap was in Pex 2.50.0.
     "pex>=2.50",
-
-    # 1st support for license expressions was in setuptools 77.0.0.
-    "setuptools>=77",
+    "setuptools",
 ]
 build-backend = "pex.build_backend.wrap"
 
@@ -47,8 +45,7 @@ authors = [
 ]
 description = "A tool to help with installing and using `science` in Python projects."
 readme = "README.md"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
+license = {file = "LICENSE"}
 keywords = ["automation", "command", "runner", "testing"]
 classifiers = [
     "Development Status :: 3 - Alpha",
