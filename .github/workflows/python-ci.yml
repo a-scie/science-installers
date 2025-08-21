@@ -86,6 +86,9 @@ jobs:
           - name: "Linux PPC64le"
             image: python:3.13-bookworm
             platform: linux/ppc64le
+          - name: "Linux riscv64"
+            image: debian:trixie
+            platform: linux/riscv64
           - name: "Linux s390x"
             image: python:3.13-bookworm
             platform: linux/s390x
@@ -93,6 +96,7 @@ jobs:
      - name: Checkout science-installers
        uses: actions/checkout@v4
      - name: Run tests
+       if: matrix.image != 'debian:trixie'
        run: |
          docker run --privileged --rm tonistiigi/binfmt --install ${{ matrix.platform }}
          docker run --rm \
@@ -103,6 +107,22 @@ jobs:
              sh -euc '
                pip install --root-user-action ignore uv &&
                uv --directory python run dev-cmd --color always --timings test -- -vvs
+            '
+     - name: Run tests
+       if: matrix.image == 'debian:trixie'
+       run: |
+         docker run --privileged --rm tonistiigi/binfmt --install ${{ matrix.platform }}
+         docker run --rm \
+           -v $PWD:/code \
+           -w /code \
+           --platform ${{ matrix.platform }} \
+           ${{ matrix.image }} \
+             sh -euc '
+               apt update && \
+               apt install -y gcc python3-dev python3.13-venv python-is-python3 && \
+               python -mvenv /venv && \
+               /venv/bin/pip install --root-user-action ignore uv && \
+               /venv/bin/uv --directory python run dev-cmd --color always --timings test -- -vvs
             '
   final-status:
     name: Gather Final Status

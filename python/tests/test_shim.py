@@ -41,44 +41,44 @@ def test_version(pyproject_toml: Path) -> None:
         dedent(
             """\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             """
         )
     )
-    assert_science_exe_version_via_insta_science("0.12.0")
+    assert_science_exe_version_via_insta_science("0.13.0")
 
 
 def test_digest(
-    pyproject_toml: Path, expected_v0_12_0_size: int, expected_v0_12_0_fingerprint: str
+    pyproject_toml: Path, expected_v0_13_0_size: int, expected_v0_13_0_fingerprint: str
 ) -> None:
     pyproject_toml.write_text(
         dedent(
             f"""\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             [tool.insta-science.science.digest]
-            size = {expected_v0_12_0_size}
-            fingerprint = "{expected_v0_12_0_fingerprint}"
+            size = {expected_v0_13_0_size}
+            fingerprint = "{expected_v0_13_0_fingerprint}"
             """
         )
     )
-    assert_science_exe_version_via_insta_science("0.12.0")
+    assert_science_exe_version_via_insta_science("0.13.0")
 
 
 def test_size_mismatch(
     pyproject_toml: Path,
-    expected_v0_12_0_url: str,
-    expected_v0_12_0_size: int,
-    expected_v0_12_0_fingerprint: str,
+    expected_v0_13_0_url: str,
+    expected_v0_13_0_size: int,
+    expected_v0_13_0_fingerprint: str,
 ) -> None:
     pyproject_toml.write_text(
         dedent(
             f"""\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             [tool.insta-science.science.digest]
             size = 1
-            fingerprint = "{expected_v0_12_0_fingerprint}"
+            fingerprint = "{expected_v0_13_0_fingerprint}"
             """
         )
     )
@@ -86,23 +86,23 @@ def test_size_mismatch(
     process = subprocess.run(args=["insta-science", "-V"], text=True, stderr=subprocess.PIPE)
     assert process.returncode != 0
     assert (
-        f"The content at {expected_v0_12_0_url} is expected to be 1 bytes, but advertises a Content-Length of {expected_v0_12_0_size} bytes."
+        f"The content at {expected_v0_13_0_url} is expected to be 1 bytes, but advertises a Content-Length of {expected_v0_13_0_size} bytes."
     ) in process.stderr
 
 
 def test_fingerprint_mismatch(
     pyproject_toml: Path,
-    expected_v0_12_0_url: str,
-    expected_v0_12_0_size: int,
-    expected_v0_12_0_fingerprint: str,
+    expected_v0_13_0_url: str,
+    expected_v0_13_0_size: int,
+    expected_v0_13_0_fingerprint: str,
 ) -> None:
     pyproject_toml.write_text(
         dedent(
             f"""\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             [tool.insta-science.science.digest]
-            size={expected_v0_12_0_size}
+            size={expected_v0_13_0_size}
             fingerprint="XXX"
             """
         )
@@ -111,9 +111,9 @@ def test_fingerprint_mismatch(
     process = subprocess.run(args=["insta-science", "-V"], text=True, stderr=subprocess.PIPE)
     assert process.returncode != 0
     assert (
-        f"The download from {expected_v0_12_0_url} has unexpected contents.\n"
+        f"The download from {expected_v0_13_0_url} has unexpected contents.\n"
         f"Expected sha256 digest:\n"
         f"  XXX\n"
         f"Actual sha256 digest:\n"
-        f"  {expected_v0_12_0_fingerprint}"
+        f"  {expected_v0_13_0_fingerprint}"
     ) in process.stderr

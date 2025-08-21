@@ -15,6 +15,7 @@ class Platform(Enum):
     Linux_aarch64 = "linux-aarch64"
     Linux_armv7l = "linux-armv7l"
     Linux_powerpc64le = "linux-powerpc64"
+    Linux_riscv64 = "linux-riscv64"
     Linux_s390x = "linux-s390x"
     Linux_x86_64 = "linux-x86_64"
     Macos_aarch64 = "macos-aarch64"
@@ -34,6 +35,8 @@ class Platform(Enum):
                 return cls.Linux_armv7l
             elif machine == "ppc64le":
                 return cls.Linux_powerpc64le
+            elif machine == "riscv64":
+                return cls.Linux_riscv64
             elif machine == "s390x":
                 return cls.Linux_s390x
             elif machine in ("amd64", "x86_64"):

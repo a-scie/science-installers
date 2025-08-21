@@ -89,7 +89,7 @@ line-length = 100
 extend-select = ["I"]
 
 [tool.uv]
-required-version = ">=0.5.19"
+required-version = ">=0.7.13"
 
 [tool.dev-cmd.commands]
 fmt = ["ruff", "format"]

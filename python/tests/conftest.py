@@ -32,64 +32,68 @@ def pyproject_toml(monkeypatch: MonkeyPatch, tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def expected_v0_12_0_url(platform: Platform, libc: LibC | None) -> str:
+def expected_v0_13_0_url(platform: Platform, libc: LibC | None) -> str:
     expected_binary_name = platform.qualified_binary_name("science-fat", libc=libc)
-    return f"https://github.com/a-scie/lift/releases/download/v0.12.0/{expected_binary_name}"
+    return f"https://github.com/a-scie/lift/releases/download/v0.13.0/{expected_binary_name}"
 
 
 @pytest.fixture
-def expected_v0_12_0_size(platform: Platform, libc: LibC | None) -> int:
+def expected_v0_13_0_size(platform: Platform, libc: LibC | None) -> int:
     if platform is Platform.Linux_aarch64:
-        return 21174202
+        return 30138165
     if platform is Platform.Linux_armv7l:
-        return 20649465
+        return 26968578
     if platform is Platform.Linux_powerpc64le:
-        return 22214859
+        return 29278663
+    if platform is Platform.Linux_riscv64:
+        return 27160998
     if platform is Platform.Linux_s390x:
-        return 22882497
+        return 30123692
     if platform is Platform.Linux_x86_64:
         if libc is LibC.MUSL:
-            return 22022099
+            return 29704768
         else:
-            return 24833023
+            return 36308054
 
     if platform is Platform.Macos_aarch64:
-        return 18782784
+        return 19180565
     if platform is Platform.Macos_x86_64:
-        return 19135116
+        return 19678576
 
     if platform is Platform.Windows_aarch64:
-        return 24592697
+        return 24698389
     if platform is Platform.Windows_x86_64:
-        return 24749565
+        return 25075180
 
-    pytest.skip(f"Unsupported platform for science v0.9.0: {platform}")
+    pytest.skip(f"Unsupported platform for science v0.13.0: {platform}")
 
 
 @pytest.fixture
-def expected_v0_12_0_fingerprint(platform: Platform, libc: LibC | None) -> str:
+def expected_v0_13_0_fingerprint(platform: Platform, libc: LibC | None) -> str:
     if platform is Platform.Linux_aarch64:
-        return "ceabee3840813e316e31cc1f2b958ecb02e4d8ee77bea6e35bd7b5eec947e046"
+        return "15103566e979b4eb82fa6b918f3e54772a287a42948a33dc83d0d152ffa207cb"
     if platform is Platform.Linux_armv7l:
-        return "9a923936a976f2d49c683849219f8eb23618d52e26cbb3c5b30fd12f3974110b"
+        return "0da05c60a243bb93c7c71829cd4720327e9ec72d594ecf264ea5d722f4d595a6"
     if platform is Platform.Linux_powerpc64le:
-        return "7b78225517dca85ec59120d02482d910413247641dad5c3f7fa7c2965ad9c8a6"
+        return "5d0048534ea991deaa5a2dc2ecad9855a6c29c08ad829723de8f708f24eb1574"
+    if platform is Platform.Linux_riscv64:
+        return "731164031ade194acc7be2367178d3d43cc89ebfa8b220f7585e5874d2e99ce7"
     if platform is Platform.Linux_s390x:
-        return "7ac30ebb03bed4314d15168c43cb35c2c488712ebaf7ea333cba88091b89f610"
+        return "3b529c038615e974a8af1a9db52cf736fef2f99167eb6e1bdde74f61f9c039d7"
     if platform is Platform.Linux_x86_64:
         if libc is LibC.MUSL:
-            return "c34c74cdd8c547e242ee5a6aa4d0f5606ff019a86388a75a4e544c5e648c313f"
+            return "398e2416ccecdabf15525078edf4271d23e42399fcc375d4f5d1228c68eff836"
         else:
-            return "aba969b7dd006d330f49b6a0c0844f0850df8c932ec57db6cb442efbcbaf94b5"
+            return "2146c55b4fcd3c7b524b29e3014cca851372219340968967a6086d399db2c48e"
 
     if platform is Platform.Macos_aarch64:
-        return "4656b73a981196e61bb1b4a874d09ffbc44ff402a88195d557963e97e0d76efc"
+        return "2a2739d688d687c8ec576162500f7cb5f00d798c11b46009bd94a60d8a0d0fff"
     if platform is Platform.Macos_x86_64:
-        return "910f571ba77c21d791b60c4cd44a0571a58b090f625ba64c24dfffce693bd530"
+        return "576a67b467663ee9c2cfcead73b1b575c85addd9d9ffd3b7891ef3552d79a0ee"
 
     if platform is Platform.Windows_aarch64:
-        return "472226f99e57d3a10c43a86f10f7a7e6c50d3434e16414081e6039dd90fce660"
+        return "7905b56ed6f918f3b7eb795cf9f54ee5dba5b2e0817c63c683e70cb9ba21b420"
     if platform is Platform.Windows_x86_64:
-        return "4d432ed91f215e5ca5d8d09ee42c8d0158a265ed66784877310f491d98d7298e"
+        return "8f466eeba296618b408a43273309f6d16193541bbe1bcbd9de29474ed3b9d7c8"
 
-    pytest.skip(f"Unsupported platform for science v0.9.0: {platform}")
+    pytest.skip(f"Unsupported platform for science v0.13.0: {platform}")
