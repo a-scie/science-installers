@@ -71,7 +71,7 @@ def test_download_http_mirror(pyproject_toml: Path, server: Server) -> None:
         dedent(
             f"""\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             base-url = "{server.url}"
             """
         )
@@ -88,7 +88,7 @@ def test_download_file_mirror(pyproject_toml: Path, tmp_path: Path) -> None:
         dedent(
             f"""\
             [tool.insta-science.science]
-            version = "0.12.0"
+            version = "0.13.0"
             base-url = "{mirror_url}"
             """
         )

@@ -1,5 +1,9 @@
 # insta-science
 
+## 0.7.0
+
+Add support for science Linux riscv64 releases.
+
 ## 0.6.1
 
 Fix cache pruning for foreign science binaries downloaded via `insta-science-util download`.
