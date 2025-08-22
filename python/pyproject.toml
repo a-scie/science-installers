@@ -3,6 +3,7 @@ requires = [
     # 1st publication of pex.build_backend.wrap was in Pex 2.50.0.
     "pex>=2.50",
     "setuptools",
+    "uv",
 ]
 build-backend = "pex.build_backend.wrap"
 
