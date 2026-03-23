@@ -4,10 +4,12 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/python-*.yml'
       - 'python/**'
       - '!python/**.md'
   pull_request:
     paths:
+      - '.github/workflows/python-*.yml'
       - 'python/**'
       - '!python/**.md'
 defaults:
