@@ -62,9 +62,9 @@ jobs:
             python-version: "3.13"
     steps:
       - name: Checkout science-installers
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v7.6.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run CI checks
@@ -96,7 +96,7 @@ jobs:
             platform: linux/s390x
     steps:
      - name: Checkout science-installers
-       uses: actions/checkout@v6
+       uses: actions/checkout@v6.1.0
      - name: Run tests
        if: matrix.image != 'debian:trixie'
        run: |
